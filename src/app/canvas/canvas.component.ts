@@ -26,7 +26,7 @@ export class CanvasComponent implements OnInit, AfterViewInit{
       alert("canvas not supplied! cannot bind WebGL context!");
       return;
     }
-    this.canvas.nativeElement.width=window.innerWidth*10/12;
+    this.canvas.nativeElement.width=(window.innerWidth*8)/12;
     this.canvas.nativeElement.height=window.innerHeight/2;
   }
 

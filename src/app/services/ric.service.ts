@@ -105,7 +105,7 @@ export class RICService {
         t2.setNeighbors([t1],tUn.right);
         t3.setNeighbors([t1],tUn.right);
         tUn.left.forEach(lN => {
-          const r=lN.getNeighbors().right[0]===t1?[t1,lN.getNeighbors().right[1]]:[lN.getNeighbors().right[0],t1]
+          const r=lN.getNeighbors().right[0]===tU.node?[t1,lN.getNeighbors().right[1]]:[lN.getNeighbors().right[0],t1]
           lN.setNeighbors(lN.getNeighbors().left,r);
         })
         let cond=true;
@@ -131,7 +131,7 @@ export class RICService {
             }
           }
           else{
-            const l=rN.getNeighbors().left[0]===node?[v,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],v]
+            const l=rN.getNeighbors().left[0]===tU.node?[v,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],v]
             rN.setNeighbors(l,rN.getNeighbors().right)
           }
         })
@@ -146,12 +146,89 @@ export class RICService {
         const trap:any=tU.node.getNode();
         const t1=new Node(new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
         const t2=new Node(new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom));
+        const v=new Node(new V_Node(line,t1,t2));
         t1.setNeighbors(tU.node.getNeighbors().left,tU.node.getNeighbors().right);
         t2.setNeighbors(tU.node.getNeighbors().left,tU.node.getNeighbors().right);
-        tU.node.setNode(new V_Node(line,
+        var tUn=tU.node.getNeighbors();
+        if(tUn.left.length===1){
+          t1.setNeighbors([(<any>tUn.left[0].getNode()).leftChild],tUn.right);
+          t2.setNeighbors([(<any>tUn.left[0].getNode()).rightChild],tUn.right);
+        }
+        else{
+          const uL=tUn.left[0].getNode();
+          const lL=tUn.left[1].getNode();
+          if(lL instanceof V_Node){
+            t1.setNeighbors([tUn.left[0],lL.leftChild],tUn.right);
+            t2.setNeighbors([lL.rightChild],tUn.right);
+          }
+          else if(uL instanceof V_Node){
+            t1.setNeighbors([uL.leftChild],tUn.right);
+            t2.setNeighbors([uL.rightChild,tUn.left[1]],tUn.right);
+          }
+        }
+        tUn.left.forEach(lN =>{
+          if(tUn.left.length===1){
+            const lNv=lN.getNode();
+            if(lNv instanceof V_Node){
+              if(lNv.line.func((<any>tU.node.getNode()).left)<(<any>tU.node.getNode()).left.y){
+                lNv.leftChild.setNeighbors(lNv.leftChild.getNeighbors().left,[t1]);
+                lNv.rightChild.setNeighbors(lNv.rightChild.getNeighbors().left,[t2,lNv.rightChild.getNeighbors().right[1]]);
+              }
+              else{
+                lNv.leftChild.setNeighbors(lNv.leftChild.getNeighbors().left,[lNv.leftChild.getNeighbors().right[0],t1]);
+                lNv.rightChild.setNeighbors(lNv.rightChild.getNeighbors().left,[t2]);
+              }
+            }
+          }
+          else{
+            const lNt=lN.getNode();
+            if(lNt instanceof Trapezoid){
+              if(lNt.right.y>line.func(lNt.right)){
+                lN.setNeighbors(lN.getNeighbors().left,[t2])
+              }
+              else{
+                lN.setNeighbors(lN.getNeighbors().left,[t1])
+              }
+            }
+            else if(lNt instanceof V_Node){
+              lNt.leftChild.setNeighbors(lNt.leftChild.getNeighbors().left,[t1]);
+              lNt.rightChild.setNeighbors(lNt.rightChild.getNeighbors().left,[t2]);
+            }
+          }
+        })
+        let cond=true;
+        tUn.right.forEach(rN =>{
+          if(rN.getNeighbors().left.length===1){
+            if(line.func((<any>rN.getNode()).left)<(<any>rN.getNode()).left.y){
+              if(!cond){
+                rN.setNeighbors([t2],rN.getNeighbors().right);
+              }
+              if(cond){
+                rN.setNeighbors([v],rN.getNeighbors().right);
+                cond=!cond;
+              }
+            }
+            else{
+              if(!cond){
+                rN.setNeighbors([v],rN.getNeighbors().right);
+              }
+              if(cond){
+                rN.setNeighbors([t1],rN.getNeighbors().right);
+                cond=!cond;
+              }
+            }
+          }
+          else{
+            console.log(rN.getNeighbors().left[0], node)
+            const l=rN.getNeighbors().left[0]===tU.node?[v,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],v]
+            rN.setNeighbors(l,rN.getNeighbors().right)
+          }
+        })
+        tU.node=v;
+        /*tU.node.setNode(new V_Node(line,
           t1,
           t2
-        ))
+        ))*/
         this.trapNodes.push(t1,t2);
       }
       else if(tU.mode==="right"){
@@ -195,10 +272,10 @@ export class RICService {
             const lNt=lN.getNode();
             if(lNt instanceof Trapezoid){
               if(lNt.right.y>line.func(lNt.right)){
-                lN.setNeighbors(lN.getNeighbors().left,[t1])
+                lN.setNeighbors(lN.getNeighbors().left,[t2])
               }
               else{
-                lN.setNeighbors(lN.getNeighbors().left,[t2])
+                lN.setNeighbors(lN.getNeighbors().left,[t1])
               }
             }
             else if(lNt instanceof V_Node){
