@@ -7,7 +7,7 @@ import { DAGService } from './dag.service';
 import { H_Node } from '../models/H-node.model';
 import { V_Node } from '../models/V-Node.model';
 import { Node } from '../models/node.model';
-import { RICLine } from '../models/ricLine.model';
+//import { RICLine } from '../models/ricLine.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class RICService {
   private extremes:any;
   private xSpan:number;
   private ySpan:number;
-  private ricLines:RICLine[]=[];
+  //private ricLines:RICLine[]=[];
   private counter:number=1;
 
   constructor(private linesService:LinesService, private dagService:DAGService) {
@@ -28,12 +28,18 @@ export class RICService {
     this.trapNodes.push(dagService.locate(new Point(this.xSpan,this.ySpan)))
   }
 
-  stepBck(canvas:any){
-    this.ricLines.pop();
-    this.drawRIC(canvas);
+  reset(){
+    this.dagService.init();
+    this.trapNodes=[];
+    this.trapNodes.push(this.dagService.locate(new Point(this.xSpan,this.ySpan)))
+    this.counter=1;
   }
 
-  stepFwd(line:Line,canvas:any){
+  stepBck(){
+    this.reset();
+  }
+
+  stepFwd(line:Line,canvas:any,canvasDAG:any){
     this.trapUpdate=[];
     var node=this.dagService.locate(line.left);
     var trap:any=node.getNode();
@@ -63,11 +69,13 @@ export class RICService {
       this.trapUpdate.push({node:node,mode:"right"});
     }
     this.trapUpdate.forEach(tU => {
+      const tUd=tU.node.getDepth();
       if(tU.mode==="both"){
-        const t1=new Node(new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
-        const t2=new Node(new Trapezoid(this.counter++,line.left,line.right,trap.top,line));
-        const t3=new Node(new Trapezoid(this.counter++,line.left,line.right,line,trap.bottom));
-        const t4=new Node(new Trapezoid(this.counter++,line.right,trap.right,trap.top,trap.bottom));
+        const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
+        const t2=new Node(tUd+3,new Trapezoid(this.counter++,line.left,line.right,trap.top,line));
+        const t3=new Node(tUd+3,new Trapezoid(this.counter++,line.left,line.right,line,trap.bottom));
+        const t4=new Node(tUd+2,new Trapezoid(this.counter++,line.right,trap.right,trap.top,trap.bottom));
+        this.dagService.setMaxDepth(tUd+3);
         var tUn=tU.node.getNeighbors();
         t1.setNeighbors(tUn.left,[t2,t3]);
         t2.setNeighbors([t1],[t4]);
@@ -81,10 +89,10 @@ export class RICService {
           const l=rN.getNeighbors().left[0]===t4?[t4,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],t4]
           rN.setNeighbors(l,rN.getNeighbors().right);
         })
-        tU.node.setNode(new H_Node(line.left.x,
+        tU.node.setNode(new H_Node(line.left,
           t1,
-          new Node(new H_Node(line.right.x,
-            new Node(new V_Node(line,
+          new Node(tUd+1,new H_Node(line.right,
+            new Node(tUd+2,new V_Node(line,
               t2,
               t3
             )),
@@ -96,10 +104,11 @@ export class RICService {
       }
       else if(tU.mode==="left"){
         const trap:any=tU.node.getNode();
-        const t1=new Node(new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
-        const t2=new Node(new Trapezoid(this.counter++,line.left,trap.right,trap.top,line));
-        const t3=new Node(new Trapezoid(this.counter++,line.left,trap.right,line,trap.bottom));
-        const v=new Node(new V_Node(line,t2,t3));
+        const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
+        const t2=new Node(tUd+2,new Trapezoid(this.counter++,line.left,trap.right,trap.top,line));
+        const t3=new Node(tUd+2,new Trapezoid(this.counter++,line.left,trap.right,line,trap.bottom));
+        const v=new Node(tUd+1,new V_Node(line,t2,t3));
+        this.dagService.setMaxDepth(tUd+2);
         var tUn=tU.node.getNeighbors();
         t1.setNeighbors(tUn.left,[t2,t3]);
         t2.setNeighbors([t1],tUn.right);
@@ -135,7 +144,7 @@ export class RICService {
             rN.setNeighbors(l,rN.getNeighbors().right)
           }
         })
-        tU.node.setNode(new H_Node(line.left.x,
+        tU.node.setNode(new H_Node(line.left,
           t1,
           v
         ))
@@ -144,9 +153,10 @@ export class RICService {
       }
       else if(tU.mode==="none"){
         const trap:any=tU.node.getNode();
-        const t1=new Node(new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
-        const t2=new Node(new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom));
-        const v=new Node(new V_Node(line,t1,t2));
+        const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
+        const t2=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom));
+        const v=new Node(tUd,new V_Node(line,t1,t2));
+        this.dagService.setMaxDepth(tUd+1);
         t1.setNeighbors(tU.node.getNeighbors().left,tU.node.getNeighbors().right);
         t2.setNeighbors(tU.node.getNeighbors().left,tU.node.getNeighbors().right);
         var tUn=tU.node.getNeighbors();
@@ -233,9 +243,10 @@ export class RICService {
       }
       else if(tU.mode==="right"){
         const trap:any=tU.node.getNode();
-        const t1=new Node(new Trapezoid(this.counter++,trap.left,line.right,trap.top,line));
-        const t2=new Node(new Trapezoid(this.counter++,trap.left,line.right,line,trap.bottom));
-        const t3=new Node(new Trapezoid(this.counter++,line.right,trap.right,trap.top,trap.bottom));
+        const t1=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,trap.top,line));
+        const t2=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,line,trap.bottom));
+        const t3=new Node(tUd+1,new Trapezoid(this.counter++,line.right,trap.right,trap.top,trap.bottom));
+        this.dagService.setMaxDepth(tUd+2);
         var tUn=tU.node.getNeighbors();
         if(tUn.left.length===1){
           t1.setNeighbors([(<any>tUn.left[0].getNode()).leftChild],[t3]);
@@ -288,8 +299,8 @@ export class RICService {
           const l=rN.getNeighbors().left[0]===tU.node?[t3,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],t3]
           rN.setNeighbors(l,rN.getNeighbors().right);
         })
-        tU.node.setNode(new H_Node(line.right.x,
-          new Node(new V_Node(line,
+        tU.node.setNode(new H_Node(line.right,
+          new Node(tUd+1,new V_Node(line,
             t1,
             t2
           )),
@@ -298,8 +309,9 @@ export class RICService {
         this.trapNodes.push(t1,t2,t3);
       }
     })
-    console.log(this.trapNodes)
+    //console.log(this.trapNodes)
     this.drawRIC(canvas);
+    this.drawDAG(canvasDAG);
   }
 
   drawLines(canvas:any){
@@ -311,6 +323,11 @@ export class RICService {
     cc.clearRect(0,0,w,h);
     cc.strokeRect(0,0,w,h);
     this.linesService.getLines().forEach(line => {
+      const ll=line.left;
+      const lr=line.right;
+      cc.strokeText(line.name,this.calcX((ll.x+lr.x)/2,xMod,w),this.calcY((ll.y+lr.y)/2,yMod,h))
+      cc.strokeText(ll.name,this.calcX(ll.x,xMod,w),this.calcY(ll.y,yMod,h))
+      cc.strokeText(lr.name,this.calcX(lr.x,xMod,w),this.calcY(lr.y,yMod,h))
       cc.beginPath();
       cc.moveTo(this.calcX(line.left.x,xMod),this.calcY(line.left.y,yMod));
       cc.lineTo(this.calcX(line.right.x,xMod),this.calcY(line.right.y,yMod));
@@ -346,6 +363,12 @@ export class RICService {
         cc.closePath();
         cc.stroke();
         cc.strokeText(trap.id,this.calcIdX(lp.x,rp.x,xMod,w),this.calcIdY(tl.func(lp),tl.func(rp),bl.func(lp),bl.func(rp),yMod,h));
+        cc.strokeText(tl.name,this.calcX((tl.left.x+tl.right.x)/2,xMod,w),this.calcY((tl.left.y+tl.right.y)/2,yMod,h));
+        cc.strokeText(bl.name,this.calcX((bl.left.x+bl.right.x)/2,xMod,w),this.calcY((bl.left.y+bl.right.y)/2,yMod,h));
+        cc.strokeText(tl.left.name,this.calcX(tl.left.x,xMod,w),this.calcY(tl.left.y,yMod,h))
+        cc.strokeText(tl.right.name,this.calcX(tl.right.x,xMod,w),this.calcY(tl.right.y,yMod,h))
+        cc.strokeText(bl.left.name,this.calcX(bl.left.x,xMod,w),this.calcY(bl.left.y,yMod,h))
+        cc.strokeText(bl.right.name,this.calcX(bl.right.x,xMod,w),this.calcY(bl.right.y,yMod,h))
       }
     })
   }
@@ -386,5 +409,67 @@ export class RICService {
 
   border(n:number):number{
     return -40*n+20
+  }
+
+  drawDAG(canvasDAG:any){
+    const maxDepth=this.dagService.getMaxDepth();
+    const root=this.dagService.getRoot();
+    const h=canvasDAG.height;
+    const w=canvasDAG.width;
+    const cc=canvasDAG?.getContext("2d");
+    cc.clearRect(0,0,w,h);
+    cc.strokeRect(0,0,w,h);
+    this.drawNode(cc,root,w,h,maxDepth)
+  }
+
+  drawNode(cc:any,node:Node,w:number,h:number,max:number,parentw?:number,leftOrRight?:number){
+    let d:number=node.getDepth();
+    const drawHeight:number=h*d/(max+1);
+    let drawWidth:number=w/(2**d)
+    if(parentw&&leftOrRight) {
+      drawWidth=parentw+leftOrRight*w/(2**(d));
+      this.drawArrow(cc,parentw,(h*(d-1)/(max+1))+3,drawWidth,drawHeight-10)
+    }
+    const n=node.getNode()
+    
+    if(n instanceof Trapezoid){
+      this.drawTrap(cc,n.id,drawWidth,drawHeight)
+    }
+    if(n instanceof V_Node){
+      this.drawVNode(cc,n.line.name,drawWidth,drawHeight)
+      this.drawNode(cc,n.leftChild,w,h,max,drawWidth,-1);
+      this.drawNode(cc,n.rightChild,w,h,max,drawWidth,1);
+    }
+    if(n instanceof H_Node){
+      this.drawHNode(cc,n.point.name,drawWidth,drawHeight)
+      this.drawNode(cc,n.leftChild,w,h,max,drawWidth,-1);
+      this.drawNode(cc,n.rightChild,w,h,max,drawWidth,1);
+    }
+  }
+
+  drawTrap(cc:any,id:number,w:number,h:number){
+    cc.strokeText(id,w,h)
+  }
+
+  drawVNode(cc:any,name:string,w:number,h:number){
+    cc.strokeText(name,w,h)
+  }
+
+  drawHNode(cc:any,name:string,w:number,h:number){
+    cc.strokeText(name,w,h)
+  }
+
+  drawArrow(cc:any,fromx:number,fromy:number,tox:number,toy:number){ // https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
+    cc.beginPath();
+    var headlen = 5; // length of head in pixels
+    var dx = tox - fromx;
+    var dy = toy - fromy;
+    var angle = Math.atan2(dy, dx);
+    cc.moveTo(fromx, fromy);
+    cc.lineTo(tox, toy);
+    cc.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+    cc.moveTo(tox, toy);
+    cc.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+    cc.stroke();
   }
 }

@@ -4,12 +4,12 @@ import { Point } from "./point.model";
 import { Trapezoid } from "./trapezoid.model";
 
 export class H_Node {
-    constructor(private value:number,private leftChild:Node,private rightChild:Node){
+    constructor(public point:Point,public leftChild:Node,public rightChild:Node){
 
     }
 
     locate(p:Point):Node{
-        if(p.x>this.value){
+        if(p.x>this.point.x){
             return this.rightChild.locate(p);
         }
         else{

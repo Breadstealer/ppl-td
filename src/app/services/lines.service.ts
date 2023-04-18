@@ -16,15 +16,20 @@ export class LinesService {
 
   initLines(){
     this.lines=[
-      new Line(new Point(50,250), new Point(500,50)), 
-      new Line(new Point(100,300), new Point(250,250)), 
-      new Line(new Point(75,275), new Point(125,275)),
-      new Line(new Point(150,300), new Point(400,600)), 
-      new Line(new Point(200,300), new Point(450,250))]
+      new Line("s1",new Point(50,250), new Point(500,50)), 
+      new Line("s2",new Point(100,300), new Point(250,250)), 
+      new Line("s3",new Point(75,275), new Point(125,275)),
+      new Line("s4",new Point(150,300), new Point(400,600)), 
+      new Line("s5",new Point(200,300), new Point(450,250))]
   }
 
   getLines():Line[]{
     return this.lines?? [];
+  }
+
+  shuffleLines():Line[]{
+    this.lines?.sort((a,b)=>{return Math.random()-0.5})
+    return this.lines??[];
   }
 
   getExtremes():{minX:number,maxX:number,minY:number,maxY:number} | undefined{

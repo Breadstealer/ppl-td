@@ -5,9 +5,19 @@ import { Trapezoid } from "./trapezoid.model";
 
 export class Node {
     private node:H_Node|V_Node|Trapezoid;
+    private depth:number;
 
-    constructor(node:H_Node|V_Node|Trapezoid){
+    constructor(depth:number,node:H_Node|V_Node|Trapezoid){
+        this.depth=depth;
         this.node=node;
+    }
+
+    setDepth(depth:number):void{
+        this.depth=depth;
+    }
+
+    getDepth():number{
+        return this.depth;
     }
 
     setNode(node:H_Node|V_Node|Trapezoid):void {

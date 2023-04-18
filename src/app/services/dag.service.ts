@@ -11,20 +11,47 @@ import { LinesService } from './lines.service';
   providedIn: 'root'
 })
 export class DAGService {
-  private DAG:Node;
+  private DAG:Node|undefined;
+  private maxDepth:number=0;
 
   constructor(private linesService:LinesService) {
-    const extremes:any=linesService.getExtremes();
+    this.init();
+    /* const extremes:any=linesService.getExtremes();
     const UL = new Point(extremes.minX*0.5,extremes.minY*0.5);
     const UR = new Point(extremes.maxX*2,extremes.minY*0.5);
     const LL = new Point(extremes.minX*0.5,extremes.maxY*2);
     const LR = new Point(extremes.maxX*2,extremes.maxY*2);
-    const T = new Line(UL,UR);
-    const B = new Line(LL,LR);
-    this.DAG = new Node(new Trapezoid(0,UL,LR,T,B));
+    const T = new Line("ubb",UL,UR);
+    const B = new Line("lbb",LL,LR);
+    this.DAG = new Node(1,new Trapezoid(0,UL,LR,T,B));
+    this.setMaxDepth(1); */
+  }
+
+  init(){
+    const extremes:any=this.linesService.getExtremes();
+    const UL = new Point(extremes.minX*0.5,extremes.minY*0.5);
+    const UR = new Point(extremes.maxX*2,extremes.minY*0.5);
+    const LL = new Point(extremes.minX*0.5,extremes.maxY*2);
+    const LR = new Point(extremes.maxX*2,extremes.maxY*2);
+    const T = new Line("",UL,UR);
+    const B = new Line("",LL,LR);
+    this.DAG = new Node(1,new Trapezoid(0,UL,LR,T,B));
+    this.maxDepth=1;
   }
 
   locate(p: Point):Node{
-    return this.DAG.locate(p);
+    return this.DAG!.locate(p);
+  }
+
+  setMaxDepth(d: number):void{
+    if(d>this.maxDepth)this.maxDepth=d;
+  }
+
+  getMaxDepth():number{
+    return this.maxDepth;
+  }
+
+  getRoot():Node{
+    return this.DAG!;
   }
 }

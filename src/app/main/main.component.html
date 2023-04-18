@@ -1,0 +1,64 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10">
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="canvas">
+                        <canvas id="canvas" #canvas>
+                            Your browser doesn't appear to support the Canvas element.
+                        </canvas>
+                    </div>
+                    <div class="canvas">
+                        <canvas id="canvasDAG" #canvasDAG>
+                            Your browser doesn't appear to support the Canvas element.
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="row">
+                <div class="col-md-2">
+                    <button class="btn btn-primary" (click)="drawLines()">Draw Lines</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <button class="btn btn-primary" (click)="drawRIC()">Draw RIC</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <button class="btn btn-danger" (click)="stepBck()">Step back</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <span>{{ counter+1 }} / {{ total+1 }}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <button class="btn btn-success" (click)="stepFwd()">Step forward</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <div *ngFor="let line of lines; index as i;">
+                        <p>{{line.name}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <button class="btn btn-primary">insert Line</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <button class="btn btn-primary" (click)="shuffleLines()">shuffle Lines</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
