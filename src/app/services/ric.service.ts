@@ -49,12 +49,12 @@ export class RICService {
     }
     else{
       this.trapUpdate.push({node:node,mode:"left"});
-      console.log(line.func(trap.right),trap.right.y);
-      
       if(trap.rightNeighbors.length==1||line.func(trap.right)<trap.right.y){ //kleiner, da y von oben!!
         node=trap.rightNeighbors[0];
       }
-      else{node=trap.rightNeighbors[1]}
+      else{
+        node=trap.rightNeighbors[1]
+      }
       trap=node.getNode();
       while(line.right.x>trap.right.x){
         this.trapNodes=this.trapNodes.filter(tNode => {return tNode !== node});
@@ -132,32 +132,15 @@ export class RICService {
             lN.setNeighbors(lN.getNeighbors().left,r);
           }
         })
-        let cond=true;
         tUn.right.forEach(rN =>{
-          //if(rN.getNeighbors().left.length===1){
-            if(line.func((<any>rN.getNode()).left)<(<any>rN.getNode()).left.y){
-              /* if(!cond){
-                rN.setNeighbors([t3],rN.getNeighbors().right);
-              }
-              if(cond){
-                rN.setNeighbors([v],rN.getNeighbors().right);
-                cond=!cond;
-              } */
-              rN.setNeighbors(rN.getNeighbors().left.length===1?[t3]:[t3,rN.getNeighbors().left[1]],rN.getNeighbors().right);
-              this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t2}
-            }
-            else{
-              /* if(!cond){
-                rN.setNeighbors([v],rN.getNeighbors().right);
-              }
-              if(cond){
-                rN.setNeighbors([t2],rN.getNeighbors().right);
-                cond=!cond;
-              } */
-              rN.setNeighbors(rN.getNeighbors().left.length===1?[t2]:[rN.getNeighbors().left[0],t2],rN.getNeighbors().right);
-              this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t3}
-            }
-          //}
+          if(line.func((<any>rN.getNode()).left)<(<any>rN.getNode()).left.y){
+            rN.setNeighbors(rN.getNeighbors().left.length===1?[t3]:[t3,rN.getNeighbors().left[1]],rN.getNeighbors().right);
+            this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t2}
+          }
+          else{
+            rN.setNeighbors(rN.getNeighbors().left.length===1?[t2]:[rN.getNeighbors().left[0],t2],rN.getNeighbors().right);
+            this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t3}
+          }
         })
         tU.node.setNode(new H_Node(line.left,
           t1,
@@ -172,136 +155,48 @@ export class RICService {
         var t1:Node|any;
         var t2:Node|any;
         if(line.func(trap.left)<trap.left.y){
-          //let v=tUn.left[0].getNode();
-          //if(v instanceof V_Node){
-            //t1=v.leftChild;
-            t1=tU.mergeTrap;
-            t2=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom));
-            t1.setDepth(Math.max(t1.getDepth(),tUd+2));
-            t1.merge(trap.right);
-          //}
+          t1=tU.mergeTrap;
+          t2=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom));
+          t1.setDepth(Math.max(t1.getDepth(),tUd+2));
+          t1.merge(trap.right);
         }
         else{
-          //let v=tUn.left[tUn.left.length-1].getNode();
-          //if(v instanceof V_Node){
-            t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
-            //t2=v.rightChild;
-            t2=tU.mergeTrap;
-            t2.setDepth(Math.max(t2.getDepth(),tUd+2));
-            t2.merge(trap.right);
-          //}
+          t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
+          t2=tU.mergeTrap;
+          t2.setDepth(Math.max(t2.getDepth(),tUd+2));
+          t2.merge(trap.right);
         }
-        /* const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
-        const t2=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom)); */
-        //const v=new Node(tUd,new V_Node(line,t1,t2));
         this.dagService.setMaxDepth(tUd+1);
-        /* t1.setNeighbors(tU.node.getNeighbors().left,tU.node.getNeighbors().right);
-        t2.setNeighbors(tU.node.getNeighbors().left,tU.node.getNeighbors().right); */
-        //if(tUn.left.length===1){
+        if(t1.merged){
+          t1.setNeighbors(t1.getNeighbors().left,tUn.right);
+          t2.setNeighbors(tUn.left,tUn.right);
+        }
+        if(t2.merged){
+          t1.setNeighbors(tUn.left,tUn.right);
+          t2.setNeighbors(t2.getNeighbors().left,tUn.right);
+        }
+        tUn.left.forEach(lN =>{
           if(t1.merged){
-            t1.setNeighbors(t1.getNeighbors().left,tUn.right);
-            //t2.setNeighbors([(<any>tUn.left[0].getNode()).rightChild],tUn.right);
-            t2.setNeighbors(tUn.left,tUn.right);
+            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t2,lN.getNeighbors().right[1]]:[t2]);
           }
           if(t2.merged){
-            //t1.setNeighbors([(<any>tUn.left[0].getNode()).leftChild],tUn.right);
-            t1.setNeighbors(tUn.left,tUn.right);
-            t2.setNeighbors(t2.getNeighbors().left,tUn.right);
+            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t1]:[t1]);
           }
-          /* t1.setNeighbors([(<any>tUn.left[0].getNode()).leftChild],tUn.right);
-          t2.setNeighbors([(<any>tUn.left[0].getNode()).rightChild],tUn.right); */
-        /* }
-        else{
-          const uL=tUn.left[0].getNode();
-          const lL=tUn.left[1].getNode();
-          if(lL instanceof V_Node&&t2.merged){
-            t1.setNeighbors([tUn.left[0],lL.leftChild],tUn.right);
-            t2.setNeighbors(t2.getNeighbors().left,tUn.right);
-          }
-          else if(uL instanceof V_Node&&t1.merged){
-            t1.setNeighbors(t1.getNeighbors().left,tUn.right);
-            t2.setNeighbors([uL.rightChild,tUn.left[1]],tUn.right);
-          }
-        } */
-        tUn.left.forEach(lN =>{
-          /* if(tUn.left.length===1){
-            const lNv=lN.getNode();
-            if(lNv instanceof V_Node){ */
-              /* if(lNv.line.func((<any>tU.node.getNode()).left)<(<any>tU.node.getNode()).left.y){
-                lNv.leftChild.setNeighbors(lNv.leftChild.getNeighbors().left,[t1]);
-                lNv.rightChild.setNeighbors(lNv.rightChild.getNeighbors().left,[t2,lNv.rightChild.getNeighbors().right[1]]);
-              }
-              else{
-                lNv.leftChild.setNeighbors(lNv.leftChild.getNeighbors().left,[lNv.leftChild.getNeighbors().right[0],t1]);
-                lNv.rightChild.setNeighbors(lNv.rightChild.getNeighbors().left,[t2]);
-              } */
-              if(t1.merged){
-                lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t2,lN.getNeighbors().right[1]]:[t2]);
-              }
-              if(t2.merged){
-                lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t1]:[t1]);
-              }
-            /* }
-          }
-          else{
-            const lNt=lN.getNode();
-            if(lNt instanceof Trapezoid){
-              if(lNt.right.y>line.func(lNt.right)){
-                lN.setNeighbors(lN.getNeighbors().left,[t2])
-              }
-              else{
-                lN.setNeighbors(lN.getNeighbors().left,[t1])
-              }
-            }
-            else if(lNt instanceof V_Node){
-              if(t1.merged){
-                lNt.rightChild.setNeighbors(lNt.rightChild.getNeighbors().left,[t2]);
-              }
-              if(t2.merged){
-                lNt.leftChild.setNeighbors(lNt.leftChild.getNeighbors().left,[t1]);
-              }
-            }
-          } */
         })
-        let cond=true;
         tUn.right.forEach(rN =>{
-          //if(rN.getNeighbors().left.length===1){
-            if(line.func((<any>rN.getNode()).left)<(<any>rN.getNode()).left.y){
-              /* if(!cond){
-                rN.setNeighbors([t2],rN.getNeighbors().right);
-              }
-              if(cond){
-                rN.setNeighbors([v],rN.getNeighbors().right);
-                cond=!cond;
-              } */
-              rN.setNeighbors(rN.getNeighbors().left.length===1?[t2]:[t2,rN.getNeighbors().left[1]],rN.getNeighbors().right);
-              this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t1}
-            }
-            else{
-              /* if(!cond){
-                rN.setNeighbors([v],rN.getNeighbors().right);
-              }
-              if(cond){
-                rN.setNeighbors([t1],rN.getNeighbors().right);
-                cond=!cond;
-              } */
-              rN.setNeighbors(rN.getNeighbors().left.length===1?[t1]:[rN.getNeighbors().left[0],t1],rN.getNeighbors().right);
-              this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t2}
-            }
-          /* }
+          if(line.func((<any>rN.getNode()).left)<(<any>rN.getNode()).left.y){
+            rN.setNeighbors(rN.getNeighbors().left.length===1?[t2]:[t2,rN.getNeighbors().left[1]],rN.getNeighbors().right);
+            this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t1}
+          }
           else{
-            console.log(rN.getNeighbors().left[0], node)
-            const l=rN.getNeighbors().left[0]===tU.node?[v,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],v]
-            rN.setNeighbors(l,rN.getNeighbors().right)
-          } */
+            rN.setNeighbors(rN.getNeighbors().left.length===1?[t1]:[rN.getNeighbors().left[0],t1],rN.getNeighbors().right);
+            this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t2}
+          }
         })
-        //console.log(tU.node,v)
-        //tU.node=v
         tU.node.setNode(new V_Node(line,
           t1,
           t2
         ))
-        //this.trapNodes.push(t1,t2);
         for(let t of [t1,t2]){
           if(!t.merged){
             this.trapNodes.push(t);
@@ -314,95 +209,35 @@ export class RICService {
         var t1:Node|any;
         var t2:Node|any;
         if(line.func(trap.left)<trap.left.y){
-          //let v=tUn.left[0].getNode();
-          //if(v instanceof V_Node){
-            //t1=v.leftChild;
-            t1=tU.mergeTrap;
-            t2=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,line,trap.bottom));
-            t1.setDepth(Math.max(t1.getDepth(),tUd+2));
-            t1.merge(line.right);
-          //}
+          t1=tU.mergeTrap;
+          t2=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,line,trap.bottom));
+          t1.setDepth(Math.max(t1.getDepth(),tUd+2));
+          t1.merge(line.right);
         }
         else{
-          //let v=tUn.left[tUn.left.length-1].getNode();
-          //if(v instanceof V_Node){
-            t1=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,trap.top,line));
-            //t2=v.rightChild;
-            t2=tU.mergeTrap;
-            t2.setDepth(Math.max(t2.getDepth(),tUd+2));
-            t2.merge(line.right);
-          //}
+          t1=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,trap.top,line));
+          t2=tU.mergeTrap;
+          t2.setDepth(Math.max(t2.getDepth(),tUd+2));
+          t2.merge(line.right);
         }
-        /* const t1=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,trap.top,line));
-        const t2=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,line,trap.bottom)); */
         const t3=new Node(tUd+1,new Trapezoid(this.counter++,line.right,trap.right,trap.top,trap.bottom));
         this.dagService.setMaxDepth(tUd+2);
-        //if(tUn.left.length===1){
-          if(t1.merged){
-            t1.setNeighbors(t1.getNeighbors().left,[t3]);
-            //t2.setNeighbors([(<any>tUn.left[0].getNode()).rightChild],[t3]);
-            t2.setNeighbors(tUn.left,[t3]);
-          }
-          if(t2.merged){
-            //t1.setNeighbors([(<any>tUn.left[0].getNode()).leftChild],[t3]);
-            t1.setNeighbors(tUn.left,[t3]);
-            t2.setNeighbors(t2.getNeighbors().left,[t3]);
-          }
-          /* t1.setNeighbors([(<any>tUn.left[0].getNode()).leftChild],[t3]);
-          t2.setNeighbors([(<any>tUn.left[0].getNode()).rightChild],[t3]); */
-        /* }
-        else{
-          const uL=tUn.left[0].getNode();
-          const lL=tUn.left[1].getNode();
-          if(lL instanceof V_Node&&t2.merged){
-            t1.setNeighbors([tUn.left[0],lL.leftChild],[t3]);
-            t2.setNeighbors(t2.getNeighbors().left,[t3]);
-          }
-          else if(uL instanceof V_Node&&t1.merged){
-            t1.setNeighbors(t1.getNeighbors().left,[t3]);
-            t2.setNeighbors([uL.rightChild,tUn.left[1]],[t3]);
-          }
-        } */
+        if(t1.merged){
+          t1.setNeighbors(t1.getNeighbors().left,[t3]);
+          t2.setNeighbors(tUn.left,[t3]);
+        }
+        if(t2.merged){
+          t1.setNeighbors(tUn.left,[t3]);
+          t2.setNeighbors(t2.getNeighbors().left,[t3]);
+        }
         t3.setNeighbors([t1,t2],tUn.right);
         tUn.left.forEach(lN => {
-          //if(tUn.left.length===1){
-            /* const lNv=lN.getNode();
-            if(lNv instanceof V_Node){ */
-              /* if(lNv.line.func((<any>tU.node.getNode()).left)<(<any>tU.node.getNode()).left.y){
-                lNv.leftChild.setNeighbors(lNv.leftChild.getNeighbors().left,[t1]);
-                lNv.rightChild.setNeighbors(lNv.rightChild.getNeighbors().left,[t2,lNv.rightChild.getNeighbors().right[1]]);
-              }
-              else{
-                lNv.leftChild.setNeighbors(lNv.leftChild.getNeighbors().left,[lNv.leftChild.getNeighbors().right[0],t1]);
-                lNv.rightChild.setNeighbors(lNv.rightChild.getNeighbors().left,[t2]);
-              } */
-              if(t1.merged){
-                lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t2,lN.getNeighbors().right[1]]:[t2]);
-              }
-              if(t2.merged){
-                lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t1]:[t1]);
-              }
-            //}
-          /* }
-          else{
-            const lNt=lN.getNode();
-            if(lNt instanceof Trapezoid){
-              if(lNt.right.y>line.func(lNt.right)){
-                lN.setNeighbors(lN.getNeighbors().left,[t2])
-              }
-              else{
-                lN.setNeighbors(lN.getNeighbors().left,[t1])
-              }
-            }
-            else if(lNt instanceof V_Node){
-              if(t1.merged){
-                lNt.rightChild.setNeighbors(lNt.rightChild.getNeighbors().left,[t2]);
-              }
-              if(t2.merged){
-                lNt.leftChild.setNeighbors(lNt.leftChild.getNeighbors().left,[t1]);
-              }
-            }
-          } */
+          if(t1.merged){
+            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t2,lN.getNeighbors().right[1]]:[t2]);
+          }
+          if(t2.merged){
+            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t1]:[t1]);
+          }
         })
         tUn.right.forEach(rN => {
           const l=rN.getNeighbors().left[0]===tU.node?[t3,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],t3]
@@ -420,10 +255,8 @@ export class RICService {
             this.trapNodes.push(t);
           }
         }
-        //this.trapNodes.push(t1,t2,t3);
       }
     })
-    console.log(this.trapNodes)
     this.drawRIC(canvas);
     this.drawDAG(canvasDAG);
   }
