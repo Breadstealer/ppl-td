@@ -10,6 +10,10 @@ export class Trapezoid{
     constructor(public id:number, public left:Point,public right:Point,public top:Line,public bottom:Line){
     }
 
+    merge(p:Point){
+        this.right=p;
+    }
+
     locate(p:Point){
         return this;
     }

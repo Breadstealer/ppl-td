@@ -6,10 +6,19 @@ import { Trapezoid } from "./trapezoid.model";
 export class Node {
     private node:H_Node|V_Node|Trapezoid;
     private depth:number;
+    public merged:boolean;
 
-    constructor(depth:number,node:H_Node|V_Node|Trapezoid){
+    constructor(depth:number,node:H_Node|V_Node|Trapezoid,merged?:boolean){
         this.depth=depth;
         this.node=node;
+        this.merged=merged??false;
+    }
+
+    merge(p:Point){
+        if(this.node instanceof Trapezoid){
+            this.merged=true;
+            this.node.merge(p);
+        }
     }
 
     setDepth(depth:number):void{

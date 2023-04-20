@@ -44,14 +44,22 @@
             </div>
             <div class="row">
                 <div class="col-md-2">
-                    <div *ngFor="let line of lines; index as i;">
-                        <p>{{line.name}}</p>
+                    <div *ngFor="let line of lines; index as i;" class="row">
+                        <div class="col-md-1">
+                            <p>{{line.name}}</p>
+                        </div>
+                        <div class="col-md-1">
+                            <button (click)="swapLineUp(i)"><span class="glyphicon glyphicon-triangle-top"></span></button>
+                            <button (click)="swapLineDown(i)"><span class="glyphicon glyphicon-triangle-bottom"></span></button>
+                            <button (click)="deleteLine(i)"><span class="glyphicon glyphicon-remove"></span></button>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-2">
-                    <button class="btn btn-primary">insert Line</button>
+                    <button class="btn btn-danger" (click)="test()"><h3>TEST</h3></button>
                 </div>
             </div>
             <div class="row">

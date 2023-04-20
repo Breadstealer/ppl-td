@@ -32,6 +32,24 @@ export class LinesService {
     return this.lines??[];
   }
 
+  swapLineUp(n:number){
+    if(n>0 && this.lines){
+      [this.lines[n-1],this.lines[n]]=[this.lines[n],this.lines[n-1]]
+    }
+  }
+
+  swapLineDown(n:number){
+    if(n<this.lines!.length-1 && this.lines){
+      [this.lines[n],this.lines[n+1]]=[this.lines[n+1],this.lines[n]]
+    }
+  }
+
+  deleteLine(n:number){
+    if(this.lines){
+      this.lines.splice(n,1);
+    }
+  }
+
   getExtremes():{minX:number,maxX:number,minY:number,maxY:number} | undefined{
     return this.extremes;
   }
