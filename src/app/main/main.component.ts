@@ -14,6 +14,7 @@ export class MainComponent {
   lines:Line[]=[];
   total:number=0;
   counter:number=0;
+  resolution:number[]=[1440,540]
 
   constructor(private ricService:RICService, public linesService:LinesService){}
 
@@ -31,20 +32,28 @@ export class MainComponent {
       alert("canvas not supplied! cannot bind WebGL context!");
       return;
     }
-    this.canvas.nativeElement.width=(window.innerWidth*10)/12.05;
-    this.canvas.nativeElement.height=window.innerHeight/2.05;
-    this.canvasDAG.nativeElement.width=(window.innerWidth*10)/12.05;
-    this.canvasDAG.nativeElement.height=window.innerHeight/2.05;
+    this.canvas.nativeElement.style.width=(window.innerWidth*10)/12.05+"px";
+    this.canvas.nativeElement.style.height=window.innerHeight/2.05+"px";
+    this.canvasDAG.nativeElement.style.width=(window.innerWidth*10)/12.05+"px";
+    this.canvasDAG.nativeElement.style.height=window.innerHeight/2.05+"px";
+    this.setResolution(this.resolution[0],this.resolution[1]);
     this.ricService.drawLines(this.canvas.nativeElement);
+  }
+
+  setResolution(w:number,h:number){
+    for(let c of [this.canvas,this.canvasDAG]){
+      c.nativeElement.width=w;
+      c.nativeElement.height=h;
+    }
   }
 
   @HostListener("window:resize", ['$event'])
   resizeCanvas(){
-    this.canvas.nativeElement.width=(window.innerWidth*10)/12.05;
-    this.canvas.nativeElement.height=window.innerHeight/2.05;
+    this.canvas.nativeElement.style.width=(window.innerWidth*10)/12.05+"px";
+    this.canvas.nativeElement.style.height=window.innerHeight/2.05+"px";
     this.ricService.drawRIC(this.canvas.nativeElement);
-    this.canvasDAG.nativeElement.width=(window.innerWidth*10)/12.05;
-    this.canvasDAG.nativeElement.height=window.innerHeight/2.05;
+    this.canvasDAG.nativeElement.style.width=(window.innerWidth*10)/12.05+"px";
+    this.canvasDAG.nativeElement.style.height=window.innerHeight/2.05+"px";
     this.ricService.drawDAG(this.canvasDAG.nativeElement);
   }
 

@@ -267,7 +267,8 @@ export class RICService {
     const xMod=w/this.xSpan;
     const yMod=h/this.ySpan;
     const cc=canvas?.getContext("2d");
-    cc.clearRect(0,0,w,h);
+    cc.fillStyle="#FFFFFF";
+    cc.fillRect(0,0,w,h);
     cc.strokeRect(0,0,w,h);
     this.linesService.getLines().forEach(line => {
       const ll=line.left;
@@ -289,7 +290,8 @@ export class RICService {
     const xMod=w/this.xSpan;
     const yMod=h/this.ySpan;
     const cc=canvas?.getContext("2d");
-    cc.clearRect(0,0,w,h);
+    cc.fillStyle="#FFFFFF";
+    cc.fillRect(0,0,w,h);
     cc.strokeRect(0,0,w,h);
     this.trapNodes.forEach(node =>{
       const trap = node.getNode();
@@ -364,21 +366,31 @@ export class RICService {
     const h=canvasDAG.height;
     const w=canvasDAG.width;
     const cc=canvasDAG?.getContext("2d");
-    cc.clearRect(0,0,w,h);
+    cc.fillStyle="#FFFFFF";
+    cc.fillRect(0,0,w,h);
     cc.strokeRect(0,0,w,h);
-    this.drawNode(cc,root,w,h,maxDepth)
+    this.drawNode(cc,root,w,h,maxDepth,[]);
   }
 
-  drawNode(cc:any,node:Node,w:number,h:number,max:number,parentw?:number,parenth?:number,leftOrRight?:number){
+  drawNode(cc:any,node:Node,w:number,h:number,max:number,mergedNodes:{node:Node,drawPos:number[]}[],parentw?:number,parenth?:number,leftOrRight?:number){
     let d:number=node.getDepth();
     const drawHeight:number=h*d/(max+1);
-    let drawWidth:number=w/(2**d)
+    let drawWidth:number=w/(2**d);
+    if(node.merged){
+      var mergeNode=mergedNodes.filter((mergeNode) => {return mergeNode.node===node})[0];
+      if(mergeNode){
+        this.drawMergeArrow(cc,parentw!,parenth!+3,parentw!+leftOrRight!*drawWidth*2,drawHeight,mergeNode.drawPos[0],h*(d-1)/(max+1),mergeNode.drawPos[0],mergeNode.drawPos[1]-10);
+        return;
+      }
+    }
     if(parentw&&parenth&&leftOrRight) {
-      drawWidth=parentw+leftOrRight*w/(2**(d));
+      drawWidth=parentw+leftOrRight*drawWidth;
       this.drawArrow(cc,parentw,parenth+3,drawWidth,drawHeight-10)
     }
+    if(node.merged){
+      mergedNodes.push({node:node,drawPos:[drawWidth,drawHeight]})
+    }
     const n=node.getNode()
-    
     if(n instanceof Trapezoid){
       this.drawTrap(cc,n.id,drawWidth,drawHeight)
     }
@@ -386,15 +398,15 @@ export class RICService {
       this.drawVNode(cc,n.line.name,drawWidth,drawHeight)
       if(n.leftChild.merged){
         
-        this.drawNode(cc,n.rightChild,w,h,max,drawWidth,drawHeight,1);
+        this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1);
       }
-      this.drawNode(cc,n.leftChild,w,h,max,drawWidth,drawHeight,-1);
-      this.drawNode(cc,n.rightChild,w,h,max,drawWidth,drawHeight,1);
+      this.drawNode(cc,n.leftChild,w,h,max,mergedNodes,drawWidth,drawHeight,-1);
+      this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1);
     }
     if(n instanceof H_Node){
       this.drawHNode(cc,n.point.name,drawWidth,drawHeight)
-      this.drawNode(cc,n.leftChild,w,h,max,drawWidth,drawHeight,-1);
-      this.drawNode(cc,n.rightChild,w,h,max,drawWidth,drawHeight,1);
+      this.drawNode(cc,n.leftChild,w,h,max,mergedNodes,drawWidth,drawHeight,-1);
+      this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1);
     }
   }
 
@@ -421,6 +433,13 @@ export class RICService {
     cc.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
     cc.moveTo(tox, toy);
     cc.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+    cc.stroke();
+  }
+
+  drawMergeArrow(cc:any,fromx:number,fromy:number,cp1x:number,cp1y:number,cp2x:number,cp2y:number,tox:number,toy:number){
+    cc.beginPath();
+    cc.moveTo(fromx,fromy);
+    cc.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,tox,toy);
     cc.stroke();
   }
 }
