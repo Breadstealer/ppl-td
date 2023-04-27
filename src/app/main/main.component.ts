@@ -32,9 +32,9 @@ export class MainComponent {
       alert("canvas not supplied! cannot bind WebGL context!");
       return;
     }
-    this.canvas.nativeElement.style.width=(window.innerWidth*10)/12.05+"px";
+    this.canvas.nativeElement.style.width=(window.innerWidth*10)/12.15+"px";
     this.canvas.nativeElement.style.height=window.innerHeight/2.05+"px";
-    this.canvasDAG.nativeElement.style.width=(window.innerWidth*10)/12.05+"px";
+    this.canvasDAG.nativeElement.style.width=(window.innerWidth*10)/12.15+"px";
     this.canvasDAG.nativeElement.style.height=window.innerHeight/2.05+"px";
     this.setResolution(this.resolution[0],this.resolution[1]);
     this.ricService.drawLines(this.canvas.nativeElement);
@@ -49,10 +49,10 @@ export class MainComponent {
 
   @HostListener("window:resize", ['$event'])
   resizeCanvas(){
-    this.canvas.nativeElement.style.width=(window.innerWidth*10)/12.05+"px";
+    this.canvas.nativeElement.style.width=(window.innerWidth*10)/12.15+"px";
     this.canvas.nativeElement.style.height=window.innerHeight/2.05+"px";
     this.ricService.drawRIC(this.canvas.nativeElement);
-    this.canvasDAG.nativeElement.style.width=(window.innerWidth*10)/12.05+"px";
+    this.canvasDAG.nativeElement.style.width=(window.innerWidth*10)/12.15+"px";
     this.canvasDAG.nativeElement.style.height=window.innerHeight/2.05+"px";
     this.ricService.drawDAG(this.canvasDAG.nativeElement);
   }
@@ -118,8 +118,15 @@ export class MainComponent {
     this.total--;
   }
 
+  point(event:MouseEvent){
+    const rect= this.canvas.nativeElement.getBoundingClientRect();
+    const canvX= event.offsetX*parseFloat(this.canvas.nativeElement.width)/parseFloat(this.canvas.nativeElement.style.width);
+    const canvY= event.offsetY*parseFloat(this.canvas.nativeElement.height)/parseFloat(this.canvas.nativeElement.style.height);
+    this.ricService.point(this.canvas.nativeElement,this.canvasDAG.nativeElement,canvX,canvY);
+  }
+
   test(){
-    for(let i=0;i<10000;i++){
+    for(let i=0;i<1000;i++){
       while(this.counter<this.total){
         this.stepFwd();
       }

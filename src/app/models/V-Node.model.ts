@@ -9,12 +9,12 @@ export class V_Node {
 
     }
 
-    locate(p:Point):Node{
+    locate(p:Point,locationPath:Node[]):Node{
         if(p.y>this.line.func(p)){
-            return this.rightChild.locate(p);
+            return this.rightChild.locate(p,locationPath);
         }
         else{
-            return this.leftChild.locate(p);
+            return this.leftChild.locate(p,locationPath);
         }
     }
 }

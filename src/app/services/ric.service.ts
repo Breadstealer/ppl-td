@@ -20,6 +20,7 @@ export class RICService {
   private ySpan:number;
   //private ricLines:RICLine[]=[];
   private counter:number=1;
+  private locationPoint?:Point;
 
   constructor(private linesService:LinesService, private dagService:DAGService) {
     this.extremes=linesService.getExtremes();
@@ -369,60 +370,69 @@ export class RICService {
     cc.fillStyle="#FFFFFF";
     cc.fillRect(0,0,w,h);
     cc.strokeRect(0,0,w,h);
-    this.drawNode(cc,root,w,h,maxDepth,[]);
+    this.drawNode(cc,root,w,h,maxDepth,[],undefined,undefined,undefined,true);
   }
 
-  drawNode(cc:any,node:Node,w:number,h:number,max:number,mergedNodes:{node:Node,drawPos:number[]}[],parentw?:number,parenth?:number,leftOrRight?:number){
+  drawNode(cc:any,node:Node,w:number,h:number,max:number,mergedNodes:{node:Node,drawPos:number[]}[],parentw?:number,parenth?:number,leftOrRight?:number,locationPathParent?:boolean){
+    let isLocationNode=this.dagService.locationPath.includes(node);
     let d:number=node.getDepth();
     const drawHeight:number=h*d/(max+1);
     let drawWidth:number=w/(2**d);
     if(node.merged){
       var mergeNode=mergedNodes.filter((mergeNode) => {return mergeNode.node===node})[0];
       if(mergeNode){
-        this.drawMergeArrow(cc,parentw!,parenth!+3,parentw!+leftOrRight!*drawWidth*2,drawHeight,mergeNode.drawPos[0],h*(d-1)/(max+1),mergeNode.drawPos[0],mergeNode.drawPos[1]-10);
+        this.drawMergeArrow(cc,
+          parentw!,parenth!+3,
+          parentw!+leftOrRight!*drawWidth*2,drawHeight,
+          mergeNode.drawPos[0],h*(d-1)/(max+1),
+          mergeNode.drawPos[0],mergeNode.drawPos[1]-10,
+          (isLocationNode&&locationPathParent));
         return;
       }
     }
     if(parentw&&parenth&&leftOrRight) {
       drawWidth=parentw+leftOrRight*drawWidth;
-      this.drawArrow(cc,parentw,parenth+3,drawWidth,drawHeight-10)
+      this.drawArrow(cc,parentw,parenth+3,drawWidth,drawHeight-10,(isLocationNode&&locationPathParent))
     }
     if(node.merged){
       mergedNodes.push({node:node,drawPos:[drawWidth,drawHeight]})
     }
     const n=node.getNode()
     if(n instanceof Trapezoid){
-      this.drawTrap(cc,n.id,drawWidth,drawHeight)
+      this.drawTrap(cc,n.id,drawWidth,drawHeight,isLocationNode)
     }
     if(n instanceof V_Node){
-      this.drawVNode(cc,n.line.name,drawWidth,drawHeight)
-      if(n.leftChild.merged){
-        
-        this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1);
-      }
-      this.drawNode(cc,n.leftChild,w,h,max,mergedNodes,drawWidth,drawHeight,-1);
-      this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1);
+      this.drawVNode(cc,n.line.name,drawWidth,drawHeight,isLocationNode)
+      this.drawNode(cc,n.leftChild,w,h,max,mergedNodes,drawWidth,drawHeight,-1,isLocationNode);
+      this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1,isLocationNode);
     }
     if(n instanceof H_Node){
-      this.drawHNode(cc,n.point.name,drawWidth,drawHeight)
-      this.drawNode(cc,n.leftChild,w,h,max,mergedNodes,drawWidth,drawHeight,-1);
-      this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1);
+      this.drawHNode(cc,n.point.name,drawWidth,drawHeight,isLocationNode)
+      this.drawNode(cc,n.leftChild,w,h,max,mergedNodes,drawWidth,drawHeight,-1,isLocationNode);
+      this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1,isLocationNode);
     }
   }
 
-  drawTrap(cc:any,id:number,w:number,h:number){
+  drawTrap(cc:any,id:number,w:number,h:number,loc?:boolean){
+    if(loc)cc.strokeStyle="#FF0000"
     cc.strokeText(id,w,h)
+    cc.strokeStyle="#000000"
   }
 
-  drawVNode(cc:any,name:string,w:number,h:number){
+  drawVNode(cc:any,name:string,w:number,h:number,loc?:boolean){
+    if(loc)cc.strokeStyle="#FF0000"
     cc.strokeText(name,w,h)
+    cc.strokeStyle="#000000"
   }
 
-  drawHNode(cc:any,name:string,w:number,h:number){
+  drawHNode(cc:any,name:string,w:number,h:number,loc?:boolean){
+    if(loc)cc.strokeStyle="#FF0000"
     cc.strokeText(name,w,h)
+    cc.strokeStyle="#000000"
   }
 
-  drawArrow(cc:any,fromx:number,fromy:number,tox:number,toy:number){ // https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag
+  drawArrow(cc:any,fromx:number,fromy:number,tox:number,toy:number,loc?:boolean){ // https://stackoverflow.com/questions/808826/draw-arrow-on-canvas-tag, modified
+    if(loc)cc.strokeStyle="#FF0000"
     cc.beginPath();
     var headlen = 5; // length of head in pixels
     var dx = tox - fromx;
@@ -434,12 +444,28 @@ export class RICService {
     cc.moveTo(tox, toy);
     cc.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
     cc.stroke();
+    cc.strokeStyle="#000000"
   }
 
-  drawMergeArrow(cc:any,fromx:number,fromy:number,cp1x:number,cp1y:number,cp2x:number,cp2y:number,tox:number,toy:number){
+  drawMergeArrow(cc:any,fromx:number,fromy:number,cp1x:number,cp1y:number,cp2x:number,cp2y:number,tox:number,toy:number,loc?:boolean){
+    if(loc)cc.strokeStyle="#FF0000"
     cc.beginPath();
     cc.moveTo(fromx,fromy);
     cc.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,tox,toy);
     cc.stroke();
+    cc.strokeStyle="#000000"
+  }
+
+  point(canvas:any,canvasDAG:any,canvX:number,canvY:number){
+    const x=((canvX-20)*this.xSpan)/(canvas.width-40)+this.extremes.minX
+    const y=((canvY-20)*this.ySpan)/(canvas.height-40)+this.extremes.minY
+    this.locationPoint=new Point(x,y,"q")
+    const cc=canvas?.getContext("2d");
+    cc.fillStyle="#000000"
+    cc.fillRect(this.calcX(x,canvas.width/this.xSpan),this.calcY(y,canvas.height/this.ySpan),3,3);
+    cc.strokeText(this.locationPoint.name,canvX+3,canvY)
+    cc.fillStyle="#ffffff"
+    this.dagService.locate(this.locationPoint)
+    this.drawDAG(canvasDAG)
   }
 }

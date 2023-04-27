@@ -13,18 +13,10 @@ import { LinesService } from './lines.service';
 export class DAGService {
   private DAG:Node|undefined;
   private maxDepth:number=0;
+  public locationPath:Node[]=[];
 
   constructor(private linesService:LinesService) {
     this.init();
-    /* const extremes:any=linesService.getExtremes();
-    const UL = new Point(extremes.minX*0.5,extremes.minY*0.5);
-    const UR = new Point(extremes.maxX*2,extremes.minY*0.5);
-    const LL = new Point(extremes.minX*0.5,extremes.maxY*2);
-    const LR = new Point(extremes.maxX*2,extremes.maxY*2);
-    const T = new Line("ubb",UL,UR);
-    const B = new Line("lbb",LL,LR);
-    this.DAG = new Node(1,new Trapezoid(0,UL,LR,T,B));
-    this.setMaxDepth(1); */
   }
 
   init(){
@@ -40,7 +32,8 @@ export class DAGService {
   }
 
   locate(p: Point):Node{
-    return this.DAG!.locate(p);
+    this.locationPath=[]
+    return this.DAG!.locate(p,this.locationPath);
   }
 
   setMaxDepth(d: number):void{

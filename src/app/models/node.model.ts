@@ -37,11 +37,12 @@ export class Node {
         return this.node;
     }
 
-    locate(p:Point):Node{
+    locate(p:Point,locationPath:Node[]):Node{
+        locationPath.push(this);
         if(this.node instanceof Trapezoid){
             return this;
         }
-        return this.node.locate(p);
+        return this.node.locate(p,locationPath);
     }
 
     setNeighbors(left:Node[],right:Node[]){
