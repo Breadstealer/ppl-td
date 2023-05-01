@@ -27,9 +27,17 @@ export class LinesService {
     return this.lines?? [];
   }
 
-  shuffleLines():Line[]{
-    this.lines?.sort((a,b)=>{return Math.random()-0.5})
+  shuffleLines():Line[]{ 
+    //this.lines?.sort((a,b)=>{return Math.random()-0.5})
+    this.shuffle(this.lines!);
     return this.lines??[];
+  }
+
+  shuffle(arr:Line[]){ // clean and simple solution from: https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+    for (let i=arr.length!-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [arr[i], arr[j]] = [arr[j],arr[i]]
+    }
   }
 
   swapLineUp(n:number){
@@ -80,5 +88,10 @@ export class LinesService {
         }
       }
     });
+  }
+
+  collidesAnyLine(x1:number,y1:number,x2:number,y2:number):Line[]|boolean{
+
+    return true
   }
 }
