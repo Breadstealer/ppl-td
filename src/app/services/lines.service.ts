@@ -11,16 +11,58 @@ export class LinesService {
 
   constructor() {
     this.initLines();
-    this.findExtremes();
+    //this.findExtremes();
   }
 
   initLines(){
-    this.lines=[
+    this.lines=[]
+    for(let line of[
+      {name:"s1",p1x:50,p1y:250,p2x:500,p2y:50},
+      {name:"s2",p1x:100,p1y:300,p2x:250,p2y:250},
+      {name:"s3",p1x:75,p1y:275,p2x:125,p2y:275},
+      {name:"s4",p1x:150,p1y:300,p2x:400,p2y:600},
+      {name:"s5",p1x:200,p1y:300,p2x:450,p2y:250},
+    ]){
+      let pushLine=this.createLine(line.name,line.p1x,line.p1y,line.p2x,line.p2y)
+      this.lines.push(pushLine!);
+    }
+    /* this.lines=[
       new Line("s1",new Point(50,250), new Point(500,50)), 
       new Line("s2",new Point(100,300), new Point(250,250)), 
       new Line("s3",new Point(75,275), new Point(125,275)),
       new Line("s4",new Point(150,300), new Point(400,600)), 
-      new Line("s5",new Point(200,300), new Point(450,250))]
+      new Line("s5",new Point(200,300), new Point(450,250))] */
+  }
+
+  createLine(name:string,p1x:number,p1y:number,p2x:number,p2y:number):Line{
+    if(p1x==p2x)throw new Error("Vertical Line not allowed!");
+    const p1=new Point(p1x,p1y);
+    const p2=new Point(p2x,p2y);
+    let c=p1x<p2x;
+    let left=c?p1:p2;
+    let right=c?p2:p1;
+    if(!this.extremes){
+      this.extremes={
+        minX:left.x,
+        maxX:right.x,
+        minY:Math.min(p1y,p2y),
+        maxY:Math.max(p1y,p2y)
+      }
+    }
+    else{
+      if(left.x<this.extremes.minX)this.extremes.minX=left.x;
+      if(right.x>this.extremes.maxX)this.extremes.maxX=right.x;
+      let minY=Math.min(p1y,p2y);
+      let maxY=Math.max(p1y,p2y);
+      if(minY<this.extremes.minY){
+        this.extremes.minY=minY;
+      }
+      if(maxY>this.extremes.maxY){
+        this.extremes.maxY=maxY;
+      }
+    }
+    
+    return new Line(name,left,right)
   }
 
   getLines():Line[]{
@@ -62,7 +104,7 @@ export class LinesService {
     return this.extremes;
   }
 
-  findExtremes(){
+  /* findExtremes(){
     this.lines?.forEach(line => {
       if(!this.extremes){
         this.extremes={
@@ -88,7 +130,7 @@ export class LinesService {
         }
       }
     });
-  }
+  } */
 
   collidesAnyLine(x1:number,y1:number,x2:number,y2:number):Line[]|boolean{
 
