@@ -83,6 +83,8 @@ export class MainComponent {
 
   stepFwd():void{
     if(this.counter==this.total){
+      this.ricService.drawRIC(this.canvas.nativeElement);
+      this.ricService.drawDAG(this.canvasDAG.nativeElement);
       alert("all lines inserted!");
       return;
     }
