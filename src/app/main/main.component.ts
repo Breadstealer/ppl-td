@@ -75,8 +75,8 @@ export class MainComponent {
       this.ricService.drawRIC(this.canvas.nativeElement);
       this.ricService.drawDAG(this.canvasDAG.nativeElement);
     }
-    for(let i=0;i<this.counter;i++){
-      this.ricService.stepFwd(this.lines[i],this.canvas.nativeElement,this.canvasDAG.nativeElement);
+    for(let i=0;i<this.counter*2;i++){
+      this.ricService.stepFwd(this.lines[Math.floor(i/2)],this.canvas.nativeElement,this.canvasDAG.nativeElement);
     }
     return;
   }
@@ -86,7 +86,7 @@ export class MainComponent {
       alert("all lines inserted!");
       return;
     }
-    this.ricService.stepFwd(this.lines[this.counter++],this.canvas.nativeElement,this.canvasDAG.nativeElement);
+    this.counter=this.counter+this.ricService.stepFwd(this.lines[this.counter],this.canvas.nativeElement,this.canvasDAG.nativeElement);
   }
 
   shuffleLines():void {
