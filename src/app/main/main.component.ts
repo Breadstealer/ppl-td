@@ -2,6 +2,8 @@ import { Component, EventEmitter, HostListener, Output, ViewChild } from '@angul
 import { LinesService } from '../services/lines.service';
 import { Line } from '../models/line.model';
 import { RICService } from '../services/ric.service';
+import { Point } from '../models/point.model';
+import { Trapezoid } from '../models/trapezoid.model';
 
 @Component({
   selector: 'app-main',
@@ -11,9 +13,13 @@ import { RICService } from '../services/ric.service';
 export class MainComponent {
   @ViewChild('canvas') canvas: any;
   @ViewChild('canvasDAG') canvasDAG: any;
+  locateX:number=0;
+  locateY:number=0;
+  locateTrap?:number;
   lines:Line[]=[];
   total:number=0;
   counter:number=0;
+  lineNameAppend:number=6;
   resolution:number[]=[1440,540]
 
   constructor(private ricService:RICService, public linesService:LinesService){}
@@ -124,7 +130,44 @@ export class MainComponent {
     const rect= this.canvas.nativeElement.getBoundingClientRect();
     const canvX= event.offsetX*parseFloat(this.canvas.nativeElement.width)/parseFloat(this.canvas.nativeElement.style.width);
     const canvY= event.offsetY*parseFloat(this.canvas.nativeElement.height)/parseFloat(this.canvas.nativeElement.style.height);
-    this.ricService.point(this.canvas.nativeElement,this.canvasDAG.nativeElement,canvX,canvY);
+    [this.locateX,this.locateY]=this.ricService.calcRealXY(this.canvas.nativeElement,canvX,canvY);
+    this.locatePoint();
+  }
+
+  locatePoint(){
+    this.ricService.drawRIC(this.canvas.nativeElement);
+    let locTrap=this.ricService.point(this.canvas.nativeElement,this.canvasDAG.nativeElement,this.locateX,this.locateY)
+    if(locTrap && locTrap instanceof Trapezoid){
+      this.locateTrap=locTrap.id
+    }
+  }
+
+  insertLine(x1:number,y1:number,x2:number,y2:number){
+    if(isNaN(x1)||isNaN(y1)||isNaN(x2)||isNaN(y2)){
+      alert("input missing!")
+      return;
+    }
+    this.reset();
+    let lineOrIntersections=this.linesService.createLine("s"+(this.lineNameAppend++),x1,y1,x2,y2);
+    if(lineOrIntersections instanceof Line){
+      this.ricService.updateExtremes();
+      this.lines=this.linesService.addLine(lineOrIntersections);
+      this.total++;
+      this.ricService.drawLines(this.canvas.nativeElement);
+    } else {
+      if(lineOrIntersections.problem==="i"){
+        let line=new Line("intersecting",new Point(x1,y1),new Point(x2,y2))
+        this.ricService.drawIntersections(this.canvas.nativeElement,line,lineOrIntersections.lines)
+        let names=lineOrIntersections.lines.map(item => item.name)
+        //alert("Segment intersecting "+names)
+      } else if(lineOrIntersections.problem==="x"){
+        let line=new Line("sharing X",new Point(x1,y1),new Point(x2,y2))
+        this.ricService.drawIntersections(this.canvas.nativeElement,line,lineOrIntersections.lines)
+        let names=lineOrIntersections.lines.map(item => item.name)
+        //alert("Point of segment sharing X with "+names)
+      }
+      
+    }
   }
 
   test(){
@@ -133,7 +176,12 @@ export class MainComponent {
         this.stepFwd();
       }
       this.shuffleLines();
-      i++;
+    }
+  }
+
+  testInsert(){
+    for(let i=0;i<300;i++){
+      this.insertLine(Math.random()*1000,Math.random()*1000,Math.random()*1000,Math.random()*1000)
     }
   }
 }

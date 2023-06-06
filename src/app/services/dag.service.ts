@@ -21,10 +21,12 @@ export class DAGService {
 
   init(){
     const extremes:any=this.linesService.getExtremes();
-    const UL = new Point(extremes.minX*0.5,extremes.minY*0.5);
-    const UR = new Point(extremes.maxX*2,extremes.minY*0.5);
-    const LL = new Point(extremes.minX*0.5,extremes.maxY*2);
-    const LR = new Point(extremes.maxX*2,extremes.maxY*2);
+    const bbOffsetX=(extremes.maxX-extremes.minX)*0.1;
+    const bbOffsetY=(extremes.maxY-extremes.minY)*0.1;
+    const UL = new Point(extremes.minX-bbOffsetX,extremes.minY-bbOffsetY);
+    const UR = new Point(extremes.maxX+bbOffsetX,extremes.minY-bbOffsetY);
+    const LL = new Point(extremes.minX-bbOffsetX,extremes.maxY+bbOffsetY);
+    const LR = new Point(extremes.maxX+bbOffsetX,extremes.maxY+bbOffsetY);
     const T = new Line("",UL,UR);
     const B = new Line("",LL,LR);
     this.DAG = new Node(1,new Trapezoid(0,UL,LR,T,B));

@@ -2,3 +2,8 @@
     margin-left: 10px;
     margin-right: 10px;
 }
+
+#lines{
+    overflow-y: auto;
+    max-height: 25vh;
+}

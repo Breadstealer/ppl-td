@@ -13,6 +13,7 @@
             </div>
         </div>
         <div class="col-md-2">
+            <hr>
             <div class="row">
                 <div class="col-md-12">
                     <button class="btn btn-primary" (click)="drawLines()">Draw Lines</button>
@@ -23,6 +24,7 @@
                     <button class="btn btn-primary" (click)="drawRIC()">Draw RIC</button>
                 </div>
             </div>
+            <hr>
             <div class="row">
                 <div class="col-md-12">
                     <button class="btn btn-danger" (click)="stepBck()">Step back</button>
@@ -38,8 +40,9 @@
                     <button class="btn btn-success" (click)="stepFwd()">Step forward</button>
                 </div>
             </div>
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12" id="lines">
                     <div *ngFor="let line of lines; index as i;" class="row">
                         <div class="col-md-3">
                             <p>{{line.name}}</p>
@@ -52,14 +55,90 @@
                     </div>
                 </div>
             </div>
+            <!-- <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-danger" (click)="testInsert()"><h3>TEST</h3></button>
+                </div>
+            </div> -->
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-danger" (click)="test()"><h3>TEST</h3></button>
+                    <button class="btn btn-primary" (click)="shuffleLines()">shuffle Lines</button>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-primary" (click)="insertLine(x1.valueAsNumber,y1.valueAsNumber,x2.valueAsNumber,y2.valueAsNumber)">insert Line</button>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" (click)="shuffleLines()">shuffle Lines</button>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label>x1</label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" placeholder="x1" #x1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label>y1</label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" placeholder="y1" #y1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label>x2</label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" placeholder="x2" #x2>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label>y2</label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" placeholder="y2" #y2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-primary" (click)="locatePoint()">locate Point</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label>x</label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" placeholder="x" [(ngModel)]="locateX" #x>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <label>y</label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" placeholder="y" [(ngModel)]="locateY" #y>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Trapezoid</label>
+                        </div>
+                        <div class="col-md-8">
+                            <span #trapez>{{locateTrap}}</span>
+                        </div> 
+                    </div>
                 </div>
             </div>
         </div>

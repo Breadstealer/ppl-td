@@ -16,8 +16,8 @@ export class RICService {
   private trapNodes:Node[]=[];
   private trapUpdate:{node:Node,mode:string,mergeTrap?:Node}[]=[];
   private extremes:any;
-  private xSpan:number;
-  private ySpan:number;
+  private xSpan:number=-1;
+  private ySpan:number=-1;
   //private ricLines:RICLine[]=[];
   private counter:number=1;
   private locationPoint?:Point;
@@ -25,13 +25,20 @@ export class RICService {
   private stepCounter:number=0;
 
   constructor(private linesService:LinesService, private dagService:DAGService) {
-    this.extremes=linesService.getExtremes();
+    this.updateExtremes();
+    this.trapNodes.push(dagService.locate(new Point(this.xSpan,this.ySpan!)))
+  }
+
+  updateExtremes(){
+    this.extremes=this.linesService.getExtremes();
     this.xSpan=this.extremes.maxX-this.extremes.minX;
     this.ySpan=this.extremes.maxY-this.extremes.minY;
-    this.trapNodes.push(dagService.locate(new Point(this.xSpan,this.ySpan)))
+    this.dagService.init()
   }
 
   reset(){
+    this.linesService.findExtremes();
+    this.updateExtremes();
     this.dagService.init();
     this.trapNodes=[];
     this.trapNodes.push(this.dagService.locate(new Point(this.xSpan,this.ySpan)))
@@ -484,8 +491,13 @@ export class RICService {
           }
         })
         tUn.right.forEach(rN => {
-          const l=rN.getNeighbors().left[0]===tU.node?[t3,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],t3]
-          rN.setNeighbors(l,rN.getNeighbors().right);
+          if(rN.getNeighbors().left.length===1){
+            rN.setNeighbors([t3],rN.getNeighbors().right);
+          }
+          else{
+            const l=rN.getNeighbors().left[0]===tU.node?[t3,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],t3]
+            rN.setNeighbors(l,rN.getNeighbors().right);
+          }
         })
         tU.node.setNode(new H_Node(line.right,
           new Node(tUd+1,new V_Node(line,
@@ -536,6 +548,38 @@ export class RICService {
     cc.strokeRect(0,0,w,h);
     this.linesService.getLines().forEach(line => {
       this.drawLine(line,canvas,cc,xMod,w,yMod,h)
+      /* const ll=line.left;
+      const lr=line.right;
+      cc.strokeText(line.name,this.calcX((ll.x+lr.x)/2,xMod,w),this.calcY((ll.y+lr.y)/2,yMod,h))
+      cc.strokeText(ll.name,this.calcX(ll.x,xMod,w),this.calcY(ll.y,yMod,h))
+      cc.strokeText(lr.name,this.calcX(lr.x,xMod,w),this.calcY(lr.y,yMod,h))
+      cc.beginPath();
+      cc.moveTo(this.calcX(line.left.x,xMod),this.calcY(line.left.y,yMod));
+      cc.lineTo(this.calcX(line.right.x,xMod),this.calcY(line.right.y,yMod));
+      cc.closePath();
+      cc.stroke(); */
+    });
+  }
+
+  drawIntersections(canvas:any,line:Line, intersections:Line[]){
+    const h=canvas.height;
+    const w=canvas.width;
+    const xMod=w/this.xSpan;
+    const yMod=h/this.ySpan;
+    const cc=canvas?.getContext("2d");
+    cc.fillStyle="#FFFFFF";
+    cc.fillRect(0,0,w,h);
+    cc.strokeRect(0,0,w,h);
+    cc.strokeStyle="#FF0000";
+    this.drawLine(line,canvas,cc,xMod,w,yMod,h);
+    cc.strokeStyle="#000000"
+    this.linesService.getLines().forEach(line => {
+      console.log(intersections.find((intersection)=>{return intersection.name===line.name}))
+      if(intersections.find((intersection)=>{return intersection.name===line.name})){
+        cc.strokeStyle="#00FFFF"
+      }
+      this.drawLine(line,canvas,cc,xMod,w,yMod,h)
+      cc.strokeStyle="#000000";
       /* const ll=line.left;
       const lr=line.right;
       cc.strokeText(line.name,this.calcX((ll.x+lr.x)/2,xMod,w),this.calcY((ll.y+lr.y)/2,yMod,h))
@@ -729,16 +773,23 @@ export class RICService {
     cc.strokeStyle="#000000"
   }
 
-  point(canvas:any,canvasDAG:any,canvX:number,canvY:number){
+  calcRealXY(canvas:any,canvX:number,canvY:number):number[]{
     const x=((canvX-20)*this.xSpan)/(canvas.width-40)+this.extremes.minX
     const y=((canvY-20)*this.ySpan)/(canvas.height-40)+this.extremes.minY
+    return [x,y]
+  }
+
+  point(canvas:any,canvasDAG:any,x:number,y:number):H_Node|V_Node|Trapezoid|undefined{
+    const canvX=this.calcX(x,canvas.width/this.xSpan)
+    const canvY=this.calcY(y,canvas.height/this.ySpan)
     this.locationPoint=new Point(x,y,"q")
     const cc=canvas?.getContext("2d");
     cc.fillStyle="#000000"
-    cc.fillRect(this.calcX(x,canvas.width/this.xSpan),this.calcY(y,canvas.height/this.ySpan),3,3);
+    cc.fillRect(canvX,canvY,3,3);
     cc.strokeText(this.locationPoint.name,canvX+3,canvY)
     cc.fillStyle="#ffffff"
-    this.dagService.locate(this.locationPoint)
+    let locTrap=this.dagService.locate(this.locationPoint).getNode()
     this.drawDAG(canvasDAG,"locate")
+    return locTrap
   }
 }
