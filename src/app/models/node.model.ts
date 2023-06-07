@@ -4,20 +4,20 @@ import { Point } from "./Point.model";
 import { Trapezoid } from "./Trapezoid.model";
 
 export class Node {
-    private node:H_Node|V_Node|Trapezoid;
+    private inner:H_Node|V_Node|Trapezoid;
     private depth:number;
     public merged:boolean;
 
     constructor(depth:number,node:H_Node|V_Node|Trapezoid,merged?:boolean){
         this.depth=depth;
-        this.node=node;
+        this.inner=node;
         this.merged=merged??false;
     }
 
     merge(p:Point){
-        if(this.node instanceof Trapezoid){
+        if(this.inner instanceof Trapezoid){
             this.merged=true;
-            this.node.merge(p);
+            this.inner.merge(p);
         }
     }
 
@@ -29,32 +29,32 @@ export class Node {
         return this.depth;
     }
 
-    setNode(node:H_Node|V_Node|Trapezoid):void {
-        this.node=node;
+    setInner(inner:H_Node|V_Node|Trapezoid):void {
+        this.inner=inner;
     }
 
-    getNode():H_Node|V_Node|Trapezoid|undefined{
-        return this.node;
+    getInner():H_Node|V_Node|Trapezoid|undefined{
+        return this.inner;
     }
 
     locate(p:Point,locationPath:Node[]):Node{
         locationPath.push(this);
-        if(this.node instanceof Trapezoid){
+        if(this.inner instanceof Trapezoid){
             return this;
         }
-        return this.node.locate(p,locationPath);
+        return this.inner.locate(p,locationPath);
     }
 
     setNeighbors(left:Node[],right:Node[]){
-        if(this.node instanceof Trapezoid){
-            this.node.setLeftNeighbors(left);
-            this.node.setRightNeighbors(right);
+        if(this.inner instanceof Trapezoid){
+            this.inner.setLeftNeighbors(left);
+            this.inner.setRightNeighbors(right);
         }
     }
 
     getNeighbors():{left:Node[],right:Node[]}{
-        if(this.node instanceof Trapezoid){
-            return this.node.getNeighbors()
+        if(this.inner instanceof Trapezoid){
+            return this.inner.getNeighbors()
         }
         else return {left:[],right:[]}
     }

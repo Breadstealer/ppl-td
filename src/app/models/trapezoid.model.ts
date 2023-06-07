@@ -14,10 +14,6 @@ export class Trapezoid{
         this.right=p;
     }
 
-    locate(p:Point){
-        return this;
-    }
-
     setLeftNeighbors(left:Node[]){
         this.leftNeighbors=left;
     }
