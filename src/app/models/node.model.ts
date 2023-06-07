@@ -1,7 +1,7 @@
-import { H_Node } from "./H-node.model";
-import { V_Node } from "./V-Node.model";
-import { Point } from "./point.model";
-import { Trapezoid } from "./trapezoid.model";
+import { H_Node } from "./H_Node.model";
+import { V_Node } from "./V_Node.model";
+import { Point } from "./Point.model";
+import { Trapezoid } from "./Trapezoid.model";
 
 export class Node {
     private node:H_Node|V_Node|Trapezoid;

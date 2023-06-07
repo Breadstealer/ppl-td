@@ -1,9 +1,9 @@
 import { Component, EventEmitter, HostListener, Output, ViewChild } from '@angular/core';
 import { LinesService } from '../services/lines.service';
-import { Line } from '../models/line.model';
+import { Line } from '../models/Line.model';
 import { RICService } from '../services/ric.service';
-import { Point } from '../models/point.model';
-import { Trapezoid } from '../models/trapezoid.model';
+import { Point } from '../models/Point.model';
+import { Trapezoid } from '../models/Trapezoid.model';
 
 @Component({
   selector: 'app-main',

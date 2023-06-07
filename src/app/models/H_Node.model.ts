@@ -1,7 +1,5 @@
-import { V_Node } from "./V-Node.model";
-import { Node } from "./node.model";
-import { Point } from "./point.model";
-import { Trapezoid } from "./trapezoid.model";
+import { Node } from "./Node.model";
+import { Point } from "./Point.model";
 
 export class H_Node {
     constructor(public point:Point,public leftChild:Node,public rightChild:Node){

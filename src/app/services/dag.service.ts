@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
-import { H_Node } from '../models/H-node.model';
-import { V_Node } from '../models/V-Node.model';
-import { Trapezoid } from '../models/trapezoid.model';
-import { Point } from '../models/point.model';
-import { Line } from '../models/line.model';
-import { Node } from '../models/node.model';
+import { Trapezoid } from '../models/Trapezoid.model';
+import { Point } from '../models/Point.model';
+import { Line } from '../models/Line.model';
+import { Node } from '../models/Node.model';
 import { LinesService } from './lines.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DAGService {
-  private DAG:Node|undefined;
+  private root:Node|undefined;
   private maxDepth:number=0;
   public locationPath:Node[]=[];
 
@@ -29,13 +27,13 @@ export class DAGService {
     const LR = new Point(extremes.maxX+bbOffsetX,extremes.maxY+bbOffsetY);
     const T = new Line("",UL,UR);
     const B = new Line("",LL,LR);
-    this.DAG = new Node(1,new Trapezoid(0,UL,LR,T,B));
+    this.root = new Node(1,new Trapezoid(0,UL,LR,T,B));
     this.maxDepth=1;
   }
 
   locate(p: Point):Node{
     this.locationPath=[]
-    return this.DAG!.locate(p,this.locationPath);
+    return this.root!.locate(p,this.locationPath);
   }
 
   setMaxDepth(d: number):void{
@@ -47,6 +45,6 @@ export class DAGService {
   }
 
   getRoot():Node{
-    return this.DAG!;
+    return this.root!;
   }
 }

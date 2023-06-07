@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Line } from '../models/line.model';
-import { Point } from '../models/point.model';
+import { Line } from '../models/Line.model';
+import { Point } from '../models/Point.model';
 
 @Injectable({
   providedIn: 'root'

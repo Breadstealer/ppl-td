@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@angular/core';
-import { Line } from '../models/line.model';
-import { Trapezoid } from '../models/trapezoid.model';
-import { Point } from '../models/point.model';
+import { Line } from '../models/Line.model';
+import { Trapezoid } from '../models/Trapezoid.model';
+import { Point } from '../models/Point.model';
 import { LinesService } from './lines.service';
 import { DAGService } from './dag.service';
-import { H_Node } from '../models/H-node.model';
-import { V_Node } from '../models/V-Node.model';
-import { Node } from '../models/node.model';
-//import { RICLine } from '../models/ricLine.model';
+import { H_Node } from '../models/H_Node.model';
+import { V_Node } from '../models/V_Node.model';
+import { Node } from '../models/Node.model';
 
 @Injectable({
   providedIn: 'root'

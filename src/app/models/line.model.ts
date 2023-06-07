@@ -1,4 +1,4 @@
-import { Point } from "./point.model";
+import { Point } from "./Point.model";
 
 export class Line {
     name: string;
@@ -20,6 +20,7 @@ export class Line {
     }
 
     func(p:Point):number{
+        if(p.x<this.left.x||p.x>this.right.x)throw new Error("Point not within x-Range of Line")
         return ((this.right.y-this.left.y)/(this.right.x-this.left.x))*(p.x-this.left.x)+this.left.y
         //if((this.right.y-this.left.y)/(this.right.x-this.left.x)<(p.y-this.left.y)/(p.x-this.left.x)) return true;
         //return false;
