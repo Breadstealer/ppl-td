@@ -129,7 +129,10 @@ export class RICService {
             rN.setNeighbors(l,rN.getNeighbors().right);
           }
         })
-        tU.node.setInner(new H_Node(line.left,
+        tU.node.setInner(new H_Node(line.left))
+        tU.node.leftChild=t1
+        tU.node.rightChild=new Node(tUd+1,new H_Node(line.right),new Node(tUd+2,new V_Node(line),t2,t3),t4)
+        /* tU.node.setInner(new H_Node(line.left,
           t1,
           new Node(tUd+1,new H_Node(line.right,
             new Node(tUd+2,new V_Node(line,
@@ -138,7 +141,7 @@ export class RICService {
             )),
             t4
           ))
-        ))
+        )) */
         this.trapNodes.push(t1,t2,t3,t4);
         
       }
@@ -147,7 +150,7 @@ export class RICService {
         const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
         const t2=new Node(tUd+2,new Trapezoid(this.counter++,line.left,trap.right,trap.top,line));
         const t3=new Node(tUd+2,new Trapezoid(this.counter++,line.left,trap.right,line,trap.bottom));
-        const v=new Node(tUd+1,new V_Node(line,t2,t3));
+        const v=new Node(tUd+1,new V_Node(line),t2,t3);
         this.dagService.setMaxDepth(tUd+2);
         var tUn=tU.node.getNeighbors();
         t1.setNeighbors(tUn.left,[t2,t3]);
@@ -172,10 +175,9 @@ export class RICService {
             this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t3}
           }
         })
-        tU.node.setInner(new H_Node(line.left,
-          t1,
-          v
-        ))
+        tU.node.setInner(new H_Node(line.left))
+        tU.node.leftChild=t1;
+        tU.node.rightChild=v
         this.trapNodes.push(t1,t2,t3);
         
       }
@@ -223,10 +225,9 @@ export class RICService {
             this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t2}
           }
         })
-        tU.node.setInner(new V_Node(line,
-          t1,
-          t2
-        ))
+        tU.node.setInner(new V_Node(line))
+        tU.node.leftChild=t1;
+        tU.node.rightChild=t2
         for(let t of [t1,t2]){
           if(!t.merged){
             this.trapNodes.push(t);
@@ -278,13 +279,16 @@ export class RICService {
             rN.setNeighbors(l,rN.getNeighbors().right);
           }
         })
-        tU.node.setInner(new H_Node(line.right,
+        tU.node.setInner(new H_Node(line.right))
+        tU.node.leftChild=new Node(tUd+1,new V_Node(line),t1,t2)
+        tU.node.rightChild=t3
+        /* tU.node.setInner(new H_Node(line.right,
           new Node(tUd+1,new V_Node(line,
             t1,
             t2
           )),
           t3
-        ))
+        )) */
         for(let t of [t1,t2,t3]){
           if(!t.merged){
             this.trapNodes.push(t);
@@ -493,14 +497,14 @@ export class RICService {
     if(n instanceof V_Node){
       let iN=wasUpdateTrapNode&&locateOrUpdate==="update"||isNew
       this.drawVNode(cc,n.line.name,drawWidth,drawHeight,isLocationNode&&locateOrUpdate==="locate",iN)
-      this.drawNode(cc,n.leftChild,w,h,max,mergedNodes,drawWidth,drawHeight,-1,isLocationNode,locateOrUpdate,iN);
-      this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1,isLocationNode,locateOrUpdate,iN);
+      this.drawNode(cc,node.leftChild!,w,h,max,mergedNodes,drawWidth,drawHeight,-1,isLocationNode,locateOrUpdate,iN);
+      this.drawNode(cc,node.rightChild!,w,h,max,mergedNodes,drawWidth,drawHeight,1,isLocationNode,locateOrUpdate,iN);
     }
     if(n instanceof H_Node){
       let iN=wasUpdateTrapNode&&locateOrUpdate==="update"||isNew
       this.drawHNode(cc,n.point.name,drawWidth,drawHeight,isLocationNode&&locateOrUpdate==="locate",iN)
-      this.drawNode(cc,n.leftChild,w,h,max,mergedNodes,drawWidth,drawHeight,-1,isLocationNode,locateOrUpdate,iN);
-      this.drawNode(cc,n.rightChild,w,h,max,mergedNodes,drawWidth,drawHeight,1,isLocationNode,locateOrUpdate,iN);
+      this.drawNode(cc,node.leftChild!,w,h,max,mergedNodes,drawWidth,drawHeight,-1,isLocationNode,locateOrUpdate,iN);
+      this.drawNode(cc,node.rightChild!,w,h,max,mergedNodes,drawWidth,drawHeight,1,isLocationNode,locateOrUpdate,iN);
     }
   }
 

@@ -6,12 +6,11 @@ import { Trapezoid } from "./Trapezoid.model";
 export class Node {
     private inner:H_Node|V_Node|Trapezoid;
     private depth:number;
-    public merged:boolean;
+    public merged:boolean=false;
 
-    constructor(depth:number,node:H_Node|V_Node|Trapezoid,merged?:boolean){
+    constructor(depth:number,node:H_Node|V_Node|Trapezoid,public leftChild?:Node,public rightChild?:Node){
         this.depth=depth;
         this.inner=node;
-        this.merged=merged??false;
     }
 
     merge(p:Point){
@@ -42,7 +41,13 @@ export class Node {
         if(this.inner instanceof Trapezoid){
             return this;
         }
-        return this.inner.locate(p,locationPath);
+        let child:"l"|"r"=this.inner.leftOrRight(p);
+        if(child==="l"){
+            return this.leftChild?.locate(p,locationPath)!;
+        } else {
+            return this.rightChild?.locate(p,locationPath)!;
+        }
+        //return this.inner.locate(p,locationPath);
     }
 
     setNeighbors(left:Node[],right:Node[]){

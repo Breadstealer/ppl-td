@@ -1,18 +1,17 @@
 import { Line } from "./Line.model";
-import { Node } from "./Node.model";
 import { Point } from "./Point.model";
 
 export class V_Node {
-    constructor(public line:Line,public leftChild:Node,public rightChild:Node){
+    constructor(public line:Line){
 
     }
 
-    locate(p:Point,locationPath:Node[]):Node{
+    leftOrRight(p:Point):"l"|"r"{
         if(p.y>this.line.func(p)){
-            return this.rightChild.locate(p,locationPath);
+            return "r";
         }
         else{
-            return this.leftChild.locate(p,locationPath);
+            return "l";
         }
     }
 }
