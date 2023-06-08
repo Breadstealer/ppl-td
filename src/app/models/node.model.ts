@@ -8,9 +8,9 @@ export class Node {
     private depth:number;
     public merged:boolean=false;
 
-    constructor(depth:number,node:H_Node|V_Node|Trapezoid,public leftChild?:Node,public rightChild?:Node){
+    constructor(depth:number,inner:H_Node|V_Node|Trapezoid,public leftChild?:Node,public rightChild?:Node){
         this.depth=depth;
-        this.inner=node;
+        this.inner=inner;
     }
 
     merge(p:Point){

@@ -4,6 +4,8 @@ import { Line } from '../models/Line.model';
 import { RICService } from '../services/ric.service';
 import { Point } from '../models/Point.model';
 import { Trapezoid } from '../models/Trapezoid.model';
+import { DRAWService } from '../services/draw.service';
+import { DAGService } from '../services/dag.service';
 
 @Component({
   selector: 'app-main',
@@ -21,7 +23,7 @@ export class MainComponent {
   counter:number=0;
   resolution:number[]=[1440,540]
 
-  constructor(private ricService:RICService, public linesService:LinesService){}
+  constructor(private ricService:RICService, public linesService:LinesService, private drawService:DRAWService, private dagService:DAGService){}
 
   ngOnInit(): void {
     this.lines=this.linesService.getLines();
@@ -42,7 +44,7 @@ export class MainComponent {
     this.canvasDAG.nativeElement.style.width=(window.innerWidth*10)/12.15+"px";
     this.canvasDAG.nativeElement.style.height=window.innerHeight/2.05+"px";
     this.setResolution(this.resolution[0],this.resolution[1]);
-    this.ricService.drawLines(this.canvas.nativeElement);
+    this.drawService.drawLines(this.canvas.nativeElement);
   }
 
   setResolution(w:number,h:number){
@@ -63,7 +65,7 @@ export class MainComponent {
   }
 
   drawLines(): void {
-    this.ricService.drawLines(this.canvas.nativeElement)
+    this.drawService.drawLines(this.canvas.nativeElement)
   }
 
   drawRIC(): void {
@@ -129,13 +131,13 @@ export class MainComponent {
     const rect= this.canvas.nativeElement.getBoundingClientRect();
     const canvX= event.offsetX*parseFloat(this.canvas.nativeElement.width)/parseFloat(this.canvas.nativeElement.style.width);
     const canvY= event.offsetY*parseFloat(this.canvas.nativeElement.height)/parseFloat(this.canvas.nativeElement.style.height);
-    [this.locateX,this.locateY]=this.ricService.calcRealXY(this.canvas.nativeElement,canvX,canvY);
+    [this.locateX,this.locateY]=this.drawService.calcRealXY(this.canvas.nativeElement,canvX,canvY);
     this.locatePoint();
   }
 
   locatePoint(){
     this.ricService.drawRIC(this.canvas.nativeElement);
-    let locTrap=this.ricService.point(this.canvas.nativeElement,this.canvasDAG.nativeElement,this.locateX,this.locateY)
+    let locTrap=this.drawService.point(this.canvas.nativeElement,this.canvasDAG.nativeElement,this.locateX,this.locateY)
     if(locTrap && locTrap instanceof Trapezoid){
       this.locateTrap=locTrap.id
     }
@@ -149,19 +151,19 @@ export class MainComponent {
     this.reset();
     let lineOrIntersections=this.linesService.createLine(x1,y1,x2,y2);
     if(lineOrIntersections instanceof Line){
-      this.ricService.updateExtremes();
+      this.ricService.reset();
       this.lines=this.linesService.addLine(lineOrIntersections);
       this.total++;
-      this.ricService.drawLines(this.canvas.nativeElement);
+      this.drawService.drawLines(this.canvas.nativeElement);
     } else {
       if(lineOrIntersections.problem==="i"){
         let line=new Line("intersecting",new Point(x1,y1),new Point(x2,y2))
-        this.ricService.drawIntersections(this.canvas.nativeElement,line,lineOrIntersections.lines)
+        this.drawService.drawIntersections(this.canvas.nativeElement,line,lineOrIntersections.lines)
         let names=lineOrIntersections.lines.map(item => item.name)
         //alert("Segment intersecting "+names)
       } else if(lineOrIntersections.problem==="x"){
         let line=new Line("sharing X",new Point(x1,y1),new Point(x2,y2))
-        this.ricService.drawIntersections(this.canvas.nativeElement,line,lineOrIntersections.lines)
+        this.drawService.drawIntersections(this.canvas.nativeElement,line,lineOrIntersections.lines)
         let names=lineOrIntersections.lines.map(item => item.name)
         //alert("Point of segment sharing X with "+names)
       }
