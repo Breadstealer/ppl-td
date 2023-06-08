@@ -24,7 +24,7 @@ export class RICService {
 
   constructor(private linesService:LinesService, private dagService:DAGService) {
     this.updateExtremes();
-    this.trapNodes.push(dagService.locate(new Point(this.xSpan,this.ySpan!)))
+    this.trapNodes.push(dagService.locate(new Point(this.xSpan,this.ySpan)))
   }
 
   updateExtremes(){
@@ -35,7 +35,6 @@ export class RICService {
   }
 
   reset(){
-    this.linesService.findExtremes();
     this.updateExtremes();
     this.dagService.init();
     this.trapNodes=[];

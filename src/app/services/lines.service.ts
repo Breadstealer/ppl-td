@@ -8,6 +8,7 @@ import { Point } from '../models/Point.model';
 export class LinesService {
   private lines:Line[] | undefined
   private extremes:{minX:number,maxX:number,minY:number,maxY:number} | undefined;
+  private nameNumber:number=0;
 
   constructor() {
     this.initLines();
@@ -17,18 +18,18 @@ export class LinesService {
   initLines(){
     this.lines=[]
     for(let line of[
-      {name:"s1",p1x:50,p1y:250,p2x:300,p2y:50},
-      {name:"s2",p1x:200,p1y:300,p2x:500,p2y:250},
-      {name:"s3",p1x:350,p1y:375,p2x:475,p2y:275},
-      {name:"s4",p1x:375,p1y:375,p2x:425,p2y:350},
-      {name:"s5",p1x:100,p1y:300,p2x:450,p2y:500},
+      {p1x:50,p1y:250,p2x:300,p2y:50},
+      {p1x:200,p1y:300,p2x:500,p2y:250},
+      {p1x:350,p1y:375,p2x:475,p2y:275},
+      {p1x:375,p1y:375,p2x:425,p2y:350},
+      {p1x:100,p1y:300,p2x:450,p2y:500},
     ]){
-      let pushLine=this.createLine(line.name,line.p1x,line.p1y,line.p2x,line.p2y)
+      let pushLine=this.createLine(line.p1x,line.p1y,line.p2x,line.p2y)
       if(pushLine instanceof Line)this.lines.push(pushLine!);
     }
   }
 
-  createLine(name:string,p1x:number,p1y:number,p2x:number,p2y:number):Line|{problem:"x"|"i",lines:Line[]}{
+  createLine(p1x:number,p1y:number,p2x:number,p2y:number):Line|{problem:"x"|"i",lines:Line[]}{
     if(p1x==p2x)throw new Error("Vertical Line not allowed!");
     let iProblem=this.collidesAnyLine(p1x,p1y,p2x,p2y);
     let xProblem=this.hasPointOnSameX(p1x,p2x);
@@ -63,13 +64,13 @@ export class LinesService {
         }
       }
       
-      return new Line(name,left,right)
+      return new Line("s"+(++this.nameNumber),left,right)
     }
   }
 
   addLine(line:Line):Line[]{
     this.lines?.push(line)
-    return this.lines!
+    return this.getLines();
   }
 
   getLines():Line[]{
@@ -105,6 +106,7 @@ export class LinesService {
     if(this.lines){
       this.lines.splice(n,1);
     }
+    this.findExtremes();
   }
 
   getExtremes():{minX:number,maxX:number,minY:number,maxY:number} | undefined{

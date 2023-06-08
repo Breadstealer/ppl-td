@@ -19,7 +19,6 @@ export class MainComponent {
   lines:Line[]=[];
   total:number=0;
   counter:number=0;
-  lineNameAppend:number=6;
   resolution:number[]=[1440,540]
 
   constructor(private ricService:RICService, public linesService:LinesService){}
@@ -121,8 +120,8 @@ export class MainComponent {
   }
 
   deleteLine(n:number){
-    this.reset();
     this.linesService.deleteLine(n);
+    this.reset();
     this.total--;
   }
 
@@ -148,7 +147,7 @@ export class MainComponent {
       return;
     }
     this.reset();
-    let lineOrIntersections=this.linesService.createLine("s"+(this.lineNameAppend++),x1,y1,x2,y2);
+    let lineOrIntersections=this.linesService.createLine(x1,y1,x2,y2);
     if(lineOrIntersections instanceof Line){
       this.ricService.updateExtremes();
       this.lines=this.linesService.addLine(lineOrIntersections);
@@ -181,7 +180,9 @@ export class MainComponent {
 
   testInsert(){
     for(let i=0;i<300;i++){
-      this.insertLine(Math.random()*1000,Math.random()*1000,Math.random()*1000,Math.random()*1000)
+      let xOff=Math.random()*10000;
+      let yOff=Math.random()*10000;
+      this.insertLine(Math.random()*1000+xOff,Math.random()*1000+yOff,Math.random()*1000+xOff,Math.random()*1000+yOff)
     }
   }
 }
