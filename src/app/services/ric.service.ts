@@ -42,7 +42,7 @@ export class RICService {
     }
   }
 
-  stepFwdLocate(line:Line,canvas:any,canvasDAG:any):Trapezoid{
+  stepFwdLocate(line:Line,canvas:any,canvasDAG:any){
     this.trapUpdate=[];
     var node=this.dagService.locate(line.left);
     var trap:any=node.getInner();
@@ -71,7 +71,6 @@ export class RICService {
     this.drawDAG(canvasDAG,"locate");
     this.drawRIC(canvas);
     this.drawService.drawLine(line,canvas);
-    return trap;
   }
 
   stepFwdUpdate(line:Line,canvas:any,canvasDAG:any){
