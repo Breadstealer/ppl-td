@@ -77,8 +77,8 @@ export class RICService {
       //this.trapNodes=this.trapNodes.filter(tNode => {return tNode !== node});
       this.trapUpdate.push({node:node,mode:"right"});
     }
-    this.drawRIC(canvas);
     this.drawDAG(canvasDAG,"locate");
+    this.drawRIC(canvas);
     this.drawService.drawLine(line,canvas);
     return trap;
   }
@@ -291,8 +291,8 @@ export class RICService {
       }
     })
     //for(let t of this.trapNodes)console.log(t)
-    this.drawRIC(canvas);
     this.drawDAG(canvasDAG,"update");
+    this.drawRIC(canvas);
   }
 
   drawRIC(canvas:any){
