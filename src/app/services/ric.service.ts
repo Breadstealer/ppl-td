@@ -19,14 +19,14 @@ export class RICService {
   private stepCounter:number=0;
 
   constructor(private dagService:DAGService, private drawService:DRAWService) {
-    this.trapNodes.push(dagService.locate(new Point(0,0)))
+    this.trapNodes[0]=dagService.locate(new Point(0,0))
   }
 
   reset(){
     this.drawService.updateExtremes();
     this.dagService.init();
     this.trapNodes=[];
-    this.trapNodes.push(this.dagService.locate(new Point(0,0)))
+    this.trapNodes[0]=this.dagService.locate(new Point(0,0))
     this.counter=1;
     this.stepCounter=0;
   }
