@@ -181,13 +181,13 @@ export class RICService {
         if(line.func(trap.left)<trap.left.y){
           t1=tU.mergeTrap;
           t2=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom));
-          t1.setDepth(Math.max(t1.getDepth(),tUd+2));
+          t1.setDepth(Math.max(t1.getDepth(),tUd+1));
           t1.merge(trap.right);
         }
         else{
           t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
           t2=tU.mergeTrap;
-          t2.setDepth(Math.max(t2.getDepth(),tUd+2));
+          t2.setDepth(Math.max(t2.getDepth(),tUd+1));
           t2.merge(trap.right);
         }
         this.dagService.setMaxDepth(tUd+1);
