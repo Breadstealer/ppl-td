@@ -12,21 +12,15 @@ import { DRAWService } from './draw.service';
   providedIn: 'root'
 })
 export class RICService {
-  //private trapNodes:Node[]=[];
   private trapUpdate:{node:Node,mode:string,mergeTrap?:Node}[]=[];
   private counter:number=1;
-  private trap?:Trapezoid;
   private stepCounter:number=0;
 
-  constructor(private dagService:DAGService, private drawService:DRAWService) {
-    //this.trapNodes[0]=dagService.locate(new Point(0,0))
-  }
+  constructor(private dagService:DAGService, private drawService:DRAWService) {}
 
   reset(){
     this.drawService.updateExtremes();
     this.dagService.init();
-    //this.trapNodes=[];
-    //this.trapNodes[0]=this.dagService.locate(new Point(0,0))
     this.counter=1;
     this.stepCounter=0;
   }
@@ -37,12 +31,12 @@ export class RICService {
 
   stepFwd(line:Line,canvas:any,canvasDAG:any):number{
     if(this.stepCounter%2==0){
-      this.trap=this.stepFwdLocate(line,canvas,canvasDAG);
+      this.stepFwdLocate(line,canvas,canvasDAG);
       this.stepCounter++;
       return 0;
     } 
     else{
-      this.stepFwdUpdate(line,canvas,canvasDAG,this.trap!);
+      this.stepFwdUpdate(line,canvas,canvasDAG);
       this.stepCounter++;
       return 1;
     }
@@ -52,13 +46,12 @@ export class RICService {
     this.trapUpdate=[];
     var node=this.dagService.locate(line.left);
     var trap:any=node.getInner();
-    //this.trapNodes=this.trapNodes.filter(tNode => {return tNode !== node});
     if(line.right.x<trap.right.x){
       this.trapUpdate.push({node:node,mode:"both"});
     }
     else{
       this.trapUpdate.push({node:node,mode:"left"});
-      if(trap.rightNeighbors.length==1||line.func(trap.right)<trap.right.y){ //kleiner, da y von oben!!
+      if(trap.rightNeighbors.length==1||line.func(trap.right)<trap.right.y){ //smaller, y measured from top!
         node=trap.rightNeighbors[0];
       }
       else{
@@ -66,15 +59,13 @@ export class RICService {
       }
       trap=node.getInner();
       while(line.right.x>trap.right.x){
-        //this.trapNodes=this.trapNodes.filter(tNode => {return tNode !== node});
         this.trapUpdate.push({node:node,mode:"none"});
-        if(trap.rightNeighbors.length==1||line.func(trap.right)<trap.right.y){ //kleiner, da y von oben!!
+        if(trap.rightNeighbors.length==1||line.func(trap.right)<trap.right.y){ //smaller, y measured from top!
           node=trap.rightNeighbors[0];
         }
         else{node=trap.rightNeighbors[1]}
         trap=node.getInner();
       }
-      //this.trapNodes=this.trapNodes.filter(tNode => {return tNode !== node});
       this.trapUpdate.push({node:node,mode:"right"});
     }
     this.drawDAG(canvasDAG,"locate");
@@ -83,18 +74,17 @@ export class RICService {
     return trap;
   }
 
-  stepFwdUpdate(line:Line,canvas:any,canvasDAG:any,trap:Trapezoid){
-    //this.trapNodes=this.trapNodes.filter(tNode => {return !this.trapUpdate.map((tU)=>tU.node).includes(tNode)})
+  stepFwdUpdate(line:Line,canvas:any,canvasDAG:any){
     this.trapUpdate.forEach((tU,index) => {
-      //delete this.trapNodes[(<any>tU.node.getInner()).id]
       const tUd=tU.node.getDepth();
+      const trap:any=tU.node.getInner();
+      const tUn=tU.node.getNeighbors();
       if(tU.mode==="both"){
         const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
         const t2=new Node(tUd+3,new Trapezoid(this.counter++,line.left,line.right,trap.top,line));
         const t3=new Node(tUd+3,new Trapezoid(this.counter++,line.left,line.right,line,trap.bottom));
         const t4=new Node(tUd+2,new Trapezoid(this.counter++,line.right,trap.right,trap.top,trap.bottom));
         this.dagService.setMaxDepth(tUd+3);
-        var tUn=tU.node.getNeighbors();
         t1.setNeighbors(tUn.left,[t2,t3]);
         t2.setNeighbors([t1],[t4]);
         t3.setNeighbors([t1],[t4]);
@@ -120,29 +110,13 @@ export class RICService {
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1
         tU.node.rightChild=new Node(tUd+1,new H_Node(line.right),new Node(tUd+2,new V_Node(line),t2,t3),t4)
-        /* tU.node.setInner(new H_Node(line.left,
-          t1,
-          new Node(tUd+1,new H_Node(line.right,
-            new Node(tUd+2,new V_Node(line,
-              t2,
-              t3
-            )),
-            t4
-          ))
-        )) */
-        //this.trapNodes.push(t1,t2,t3,t4);
-        /* for(let t of [t1,t2,t3,t4]){
-          this.trapNodes[(<any>t.getInner()).id]=t
-        } */
       }
       else if(tU.mode==="left"){
-        const trap:any=tU.node.getInner();
         const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
         const t2=new Node(tUd+2,new Trapezoid(this.counter++,line.left,trap.right,trap.top,line));
         const t3=new Node(tUd+2,new Trapezoid(this.counter++,line.left,trap.right,line,trap.bottom));
         const v=new Node(tUd+1,new V_Node(line),t2,t3);
         this.dagService.setMaxDepth(tUd+2);
-        var tUn=tU.node.getNeighbors();
         t1.setNeighbors(tUn.left,[t2,t3]);
         t2.setNeighbors([t1],tUn.right);
         t3.setNeighbors([t1],tUn.right);
@@ -168,14 +142,8 @@ export class RICService {
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1;
         tU.node.rightChild=v
-        //this.trapNodes.push(t1,t2,t3);
-        /* for(let t of [t1,t2,t3]){
-          this.trapNodes[(<any>t.getInner()).id]=t
-        } */
       }
       else if(tU.mode==="none"){
-        const trap:any=tU.node.getInner();
-        var tUn=tU.node.getNeighbors();
         var t1:Node|any;
         var t2:Node|any;
         if(line.func(trap.left)<trap.left.y){
@@ -220,16 +188,8 @@ export class RICService {
         tU.node.setInner(new V_Node(line))
         tU.node.leftChild=t1;
         tU.node.rightChild=t2
-        /* for(let t of [t1,t2]){
-          if(!t.merged){
-            //this.trapNodes.push(t);
-            this.trapNodes[(<any>t.getInner()).id]=t
-          }
-        } */
       }
       else if(tU.mode==="right"){
-        const trap:any=tU.node.getInner();
-        var tUn=tU.node.getNeighbors();
         var t1:Node|any;
         var t2:Node|any;
         if(line.func(trap.left)<trap.left.y){
@@ -275,22 +235,8 @@ export class RICService {
         tU.node.setInner(new H_Node(line.right))
         tU.node.leftChild=new Node(tUd+1,new V_Node(line),t1,t2)
         tU.node.rightChild=t3
-        /* tU.node.setInner(new H_Node(line.right,
-          new Node(tUd+1,new V_Node(line,
-            t1,
-            t2
-          )),
-          t3
-        )) */
-        /* for(let t of [t1,t2,t3]){
-          if(!t.merged){
-            //this.trapNodes.push(t);
-            this.trapNodes[(<any>t.getInner()).id]=t
-          }
-        } */
       }
     })
-    //for(let t of this.trapNodes)console.log(t)
     this.drawDAG(canvasDAG,"update");
     this.drawRIC(canvas);
   }
