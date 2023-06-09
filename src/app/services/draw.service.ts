@@ -18,6 +18,7 @@ export class DRAWService {
   private ySpan:number=-1;
   private locationPoint?:Point;
   public trapUpdate:{node:Node,mode:string,mergeTrap?:Node}[]=[];
+  private visited:number[]=[]
 
   constructor(private linesService:LinesService,private dagService:DAGService) {
     this.updateExtremes();
@@ -86,7 +87,9 @@ export class DRAWService {
     });
   }
 
-  drawRIC(canvas:any,trapNodes:Node[]){
+  drawRIC(canvas:any){
+    this.visited=[]
+    const trapNode=this.dagService.locate(new Point(this.extremes.minX,0))
     const h=canvas.height;
     const w=canvas.width;
     const xMod=w/this.xSpan;
@@ -95,32 +98,41 @@ export class DRAWService {
     cc.fillStyle="#FFFFFF";
     cc.fillRect(0,0,w,h);
     cc.strokeRect(0,0,w,h);
-    trapNodes.forEach(node =>{
-      const trap = node.getInner();
-      if(trap instanceof Trapezoid){
-        const lp=trap.left;
-        const rp=trap.right;
-        const tl=trap.top;
-        const bl=trap.bottom;
-        cc.beginPath();
-        cc.moveTo(this.calcX(tl.left.x,xMod),this.calcY(tl.left.y,yMod));
-        cc.lineTo(this.calcX(tl.right.x,xMod),this.calcY(tl.right.y,yMod));
-        cc.moveTo(this.calcX(bl.left.x,xMod),this.calcY(bl.left.y,yMod));
-        cc.lineTo(this.calcX(bl.right.x,xMod),this.calcY(bl.right.y,yMod));
-        cc.moveTo(this.calcX(lp.x,xMod),this.calcY(tl.func(lp),yMod));
-        cc.lineTo(this.calcX(lp.x,xMod),this.calcY(bl.func(lp),yMod));
-        cc.moveTo(this.calcX(rp.x,xMod),this.calcY(tl.func(rp),yMod));
-        cc.lineTo(this.calcX(rp.x,xMod),this.calcY(bl.func(rp),yMod));
-        cc.closePath();
-        cc.stroke();
-        cc.strokeText(trap.id,this.calcIdX(lp.x,rp.x,xMod,w),this.calcIdY(tl.func(lp),tl.func(rp),bl.func(lp),bl.func(rp),yMod,h));
-        cc.strokeText(tl.name,this.calcX((tl.left.x+tl.right.x)/2,xMod,w),this.calcY((tl.left.y+tl.right.y)/2,yMod,h));
-        cc.strokeText(bl.name,this.calcX((bl.left.x+bl.right.x)/2,xMod,w),this.calcY((bl.left.y+bl.right.y)/2,yMod,h));
-        cc.strokeText(tl.left.name,this.calcX(tl.left.x,xMod,w),this.calcY(tl.left.y,yMod,h))
-        cc.strokeText(tl.right.name,this.calcX(tl.right.x,xMod,w),this.calcY(tl.right.y,yMod,h))
-        cc.strokeText(bl.left.name,this.calcX(bl.left.x,xMod,w),this.calcY(bl.left.y,yMod,h))
-        cc.strokeText(bl.right.name,this.calcX(bl.right.x,xMod,w),this.calcY(bl.right.y,yMod,h))
-      }
+    const trap = trapNode.getInner(); 
+    if(trap instanceof Trapezoid){
+      this.drawRICTrap(trap,cc,xMod,yMod,w,h)
+    } 
+  }
+
+  drawRICTrap(trap:Trapezoid,cc:any,xMod:number,yMod:number,w:number,h:number){
+    const lp=trap.left;
+    const rp=trap.right;
+    const tl=trap.top;
+    const bl=trap.bottom;
+    cc.beginPath();
+    cc.moveTo(this.calcX(tl.left.x,xMod),this.calcY(tl.left.y,yMod));
+    cc.lineTo(this.calcX(tl.right.x,xMod),this.calcY(tl.right.y,yMod));
+    cc.moveTo(this.calcX(bl.left.x,xMod),this.calcY(bl.left.y,yMod));
+    cc.lineTo(this.calcX(bl.right.x,xMod),this.calcY(bl.right.y,yMod));
+    cc.moveTo(this.calcX(lp.x,xMod),this.calcY(tl.func(lp),yMod));
+    cc.lineTo(this.calcX(lp.x,xMod),this.calcY(bl.func(lp),yMod));
+    cc.moveTo(this.calcX(rp.x,xMod),this.calcY(tl.func(rp),yMod));
+    cc.lineTo(this.calcX(rp.x,xMod),this.calcY(bl.func(rp),yMod));
+    cc.closePath();
+    cc.stroke();
+    cc.strokeText(trap.id,this.calcIdX(lp.x,rp.x,xMod,w),this.calcIdY(tl.func(lp),tl.func(rp),bl.func(lp),bl.func(rp),yMod,h));
+    cc.strokeText(tl.name,this.calcX((tl.left.x+tl.right.x)/2,xMod,w),this.calcY((tl.left.y+tl.right.y)/2,yMod,h));
+    cc.strokeText(bl.name,this.calcX((bl.left.x+bl.right.x)/2,xMod,w),this.calcY((bl.left.y+bl.right.y)/2,yMod,h));
+    cc.strokeText(tl.left.name,this.calcX(tl.left.x,xMod,w),this.calcY(tl.left.y,yMod,h))
+    cc.strokeText(tl.right.name,this.calcX(tl.right.x,xMod,w),this.calcY(tl.right.y,yMod,h))
+    cc.strokeText(bl.left.name,this.calcX(bl.left.x,xMod,w),this.calcY(bl.left.y,yMod,h))
+    cc.strokeText(bl.right.name,this.calcX(bl.right.x,xMod,w),this.calcY(bl.right.y,yMod,h))
+    this.visited.push(trap.id)
+    trap.getNeighbors().right.forEach((node)=>{
+      let t=node.getInner();
+      if(t instanceof Trapezoid && !this.visited.includes(t.id)){
+        this.drawRICTrap(t,cc,xMod,yMod,w,h)
+      }   
     })
   }
 

@@ -12,21 +12,21 @@ import { DRAWService } from './draw.service';
   providedIn: 'root'
 })
 export class RICService {
-  private trapNodes:Node[]=[];
+  //private trapNodes:Node[]=[];
   private trapUpdate:{node:Node,mode:string,mergeTrap?:Node}[]=[];
   private counter:number=1;
   private trap?:Trapezoid;
   private stepCounter:number=0;
 
   constructor(private dagService:DAGService, private drawService:DRAWService) {
-    this.trapNodes[0]=dagService.locate(new Point(0,0))
+    //this.trapNodes[0]=dagService.locate(new Point(0,0))
   }
 
   reset(){
     this.drawService.updateExtremes();
     this.dagService.init();
-    this.trapNodes=[];
-    this.trapNodes[0]=this.dagService.locate(new Point(0,0))
+    //this.trapNodes=[];
+    //this.trapNodes[0]=this.dagService.locate(new Point(0,0))
     this.counter=1;
     this.stepCounter=0;
   }
@@ -86,7 +86,7 @@ export class RICService {
   stepFwdUpdate(line:Line,canvas:any,canvasDAG:any,trap:Trapezoid){
     //this.trapNodes=this.trapNodes.filter(tNode => {return !this.trapUpdate.map((tU)=>tU.node).includes(tNode)})
     this.trapUpdate.forEach((tU,index) => {
-      delete this.trapNodes[(<any>tU.node.getInner()).id]
+      //delete this.trapNodes[(<any>tU.node.getInner()).id]
       const tUd=tU.node.getDepth();
       if(tU.mode==="both"){
         const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
@@ -131,9 +131,9 @@ export class RICService {
           ))
         )) */
         //this.trapNodes.push(t1,t2,t3,t4);
-        for(let t of [t1,t2,t3,t4]){
+        /* for(let t of [t1,t2,t3,t4]){
           this.trapNodes[(<any>t.getInner()).id]=t
-        }
+        } */
       }
       else if(tU.mode==="left"){
         const trap:any=tU.node.getInner();
@@ -169,9 +169,9 @@ export class RICService {
         tU.node.leftChild=t1;
         tU.node.rightChild=v
         //this.trapNodes.push(t1,t2,t3);
-        for(let t of [t1,t2,t3]){
+        /* for(let t of [t1,t2,t3]){
           this.trapNodes[(<any>t.getInner()).id]=t
-        }
+        } */
       }
       else if(tU.mode==="none"){
         const trap:any=tU.node.getInner();
@@ -220,12 +220,12 @@ export class RICService {
         tU.node.setInner(new V_Node(line))
         tU.node.leftChild=t1;
         tU.node.rightChild=t2
-        for(let t of [t1,t2]){
+        /* for(let t of [t1,t2]){
           if(!t.merged){
             //this.trapNodes.push(t);
             this.trapNodes[(<any>t.getInner()).id]=t
           }
-        }
+        } */
       }
       else if(tU.mode==="right"){
         const trap:any=tU.node.getInner();
@@ -282,12 +282,12 @@ export class RICService {
           )),
           t3
         )) */
-        for(let t of [t1,t2,t3]){
+        /* for(let t of [t1,t2,t3]){
           if(!t.merged){
             //this.trapNodes.push(t);
             this.trapNodes[(<any>t.getInner()).id]=t
           }
-        }
+        } */
       }
     })
     //for(let t of this.trapNodes)console.log(t)
@@ -296,7 +296,7 @@ export class RICService {
   }
 
   drawRIC(canvas:any){
-    this.drawService.drawRIC(canvas,this.trapNodes)
+    this.drawService.drawRIC(canvas)
   }
 
   drawDAG(canvasDAG:any,locateOrUpdate?:string){
