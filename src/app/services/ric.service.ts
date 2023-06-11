@@ -29,20 +29,20 @@ export class RICService {
     this.reset();
   }
 
-  stepFwd(line:Line,canvas:any,canvasDAG:any):number{
+  stepFwd(line:Line,canvas:any,canvasDAG:any,draw?:boolean):number{
     if(this.stepCounter%2==0){
-      this.stepFwdLocate(line,canvas,canvasDAG);
+      this.stepFwdLocate(line,canvas,canvasDAG,draw);
       this.stepCounter++;
       return 0;
     } 
     else{
-      this.stepFwdUpdate(line,canvas,canvasDAG);
+      this.stepFwdUpdate(line,canvas,canvasDAG,draw);
       this.stepCounter++;
       return 1;
     }
   }
 
-  stepFwdLocate(line:Line,canvas:any,canvasDAG:any){
+  stepFwdLocate(line:Line,canvas:any,canvasDAG:any,draw?:boolean){
     this.trapUpdate=[];
     var node=this.dagService.locate(line.left);
     var trap:any=node.getInner();
@@ -68,12 +68,14 @@ export class RICService {
       }
       this.trapUpdate.push({node:node,mode:"right"});
     }
-    this.drawDAG(canvasDAG,"locate");
-    this.drawRIC(canvas);
-    this.drawService.drawLine(line,canvas);
+    if(draw===undefined || draw===true){
+      this.drawDAG(canvasDAG,"locate");
+      this.drawRIC(canvas);
+      this.drawService.drawLine(line,canvas);
+    }
   }
 
-  stepFwdUpdate(line:Line,canvas:any,canvasDAG:any){
+  stepFwdUpdate(line:Line,canvas:any,canvasDAG:any,draw?:boolean){
     this.trapUpdate.forEach((tU,index) => {
       const tUd=tU.node.getDepth();
       const trap:any=tU.node.getInner();
@@ -114,7 +116,6 @@ export class RICService {
         const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
         const t2=new Node(tUd+2,new Trapezoid(this.counter++,line.left,trap.right,trap.top,line));
         const t3=new Node(tUd+2,new Trapezoid(this.counter++,line.left,trap.right,line,trap.bottom));
-        const v=new Node(tUd+1,new V_Node(line),t2,t3);
         this.dagService.setMaxDepth(tUd+2);
         t1.setNeighbors(tUn.left,[t2,t3]);
         t2.setNeighbors([t1],tUn.right);
@@ -140,104 +141,106 @@ export class RICService {
         })
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1;
-        tU.node.rightChild=v
+        tU.node.rightChild=new Node(tUd+1,new V_Node(line),t2,t3);
       }
       else if(tU.mode==="none"){
-        var t1:Node|any;
-        var t2:Node|any;
+        let t2:Node|any;
+        let t3:Node|any;
         if(line.func(trap.left)<trap.left.y){
-          t1=tU.mergeTrap;
-          t2=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom));
-          t1.setDepth(Math.max(t1.getDepth(),tUd+1));
-          t1.merge(trap.right);
-        }
-        else{
-          t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
           t2=tU.mergeTrap;
+          t3=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,line,trap.bottom));
           t2.setDepth(Math.max(t2.getDepth(),tUd+1));
           t2.merge(trap.right);
         }
-        this.dagService.setMaxDepth(tUd+1);
-        if(t1.merged){
-          t1.setNeighbors(t1.getNeighbors().left,tUn.right);
-          t2.setNeighbors(tUn.left,tUn.right);
+        else{
+          t2=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,trap.right,trap.top,line));
+          t3=tU.mergeTrap;
+          t3.setDepth(Math.max(t3.getDepth(),tUd+1));
+          t3.merge(trap.right);
         }
+        this.dagService.setMaxDepth(tUd+1);
         if(t2.merged){
-          t1.setNeighbors(tUn.left,tUn.right);
           t2.setNeighbors(t2.getNeighbors().left,tUn.right);
+          t3.setNeighbors(tUn.left,tUn.right);
+        }
+        if(t3.merged){
+          t2.setNeighbors(tUn.left,tUn.right);
+          t3.setNeighbors(t3.getNeighbors().left,tUn.right);
         }
         tUn.left.forEach(lN =>{
-          if(t1.merged){
-            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t2,lN.getNeighbors().right[1]]:[t2]);
-          }
           if(t2.merged){
-            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t1]:[t1]);
+            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t3,lN.getNeighbors().right[1]]:[t3]);
+          }
+          if(t3.merged){
+            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t2]:[t2]);
           }
         })
         tUn.right.forEach(rN =>{
           if(line.func((<any>rN.getInner()).left)<(<any>rN.getInner()).left.y){
-            rN.setNeighbors(rN.getNeighbors().left.length===1?[t2]:[t2,rN.getNeighbors().left[1]],rN.getNeighbors().right);
-            this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t1}
+            rN.setNeighbors(rN.getNeighbors().left.length===1?[t3]:[t3,rN.getNeighbors().left[1]],rN.getNeighbors().right);
+            this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t2}
           }
           else{
-            rN.setNeighbors(rN.getNeighbors().left.length===1?[t1]:[rN.getNeighbors().left[0],t1],rN.getNeighbors().right);
-            this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t2}
+            rN.setNeighbors(rN.getNeighbors().left.length===1?[t2]:[rN.getNeighbors().left[0],t2],rN.getNeighbors().right);
+            this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t3}
           }
         })
         tU.node.setInner(new V_Node(line))
-        tU.node.leftChild=t1;
-        tU.node.rightChild=t2
+        tU.node.leftChild=t2;
+        tU.node.rightChild=t3;
       }
       else if(tU.mode==="right"){
-        var t1:Node|any;
-        var t2:Node|any;
+        let t2:Node|any;
+        let t3:Node|any;
         if(line.func(trap.left)<trap.left.y){
-          t1=tU.mergeTrap;
-          t2=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,line,trap.bottom));
-          t1.setDepth(Math.max(t1.getDepth(),tUd+2));
-          t1.merge(line.right);
-        }
-        else{
-          t1=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,trap.top,line));
           t2=tU.mergeTrap;
+          t3=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,line,trap.bottom));
           t2.setDepth(Math.max(t2.getDepth(),tUd+2));
           t2.merge(line.right);
         }
-        const t3=new Node(tUd+1,new Trapezoid(this.counter++,line.right,trap.right,trap.top,trap.bottom));
+        else{
+          t2=new Node(tUd+2,new Trapezoid(this.counter++,trap.left,line.right,trap.top,line));
+          t3=tU.mergeTrap;
+          t3.setDepth(Math.max(t3.getDepth(),tUd+2));
+          t3.merge(line.right);
+        }
+        const t4=new Node(tUd+1,new Trapezoid(this.counter++,line.right,trap.right,trap.top,trap.bottom));
         this.dagService.setMaxDepth(tUd+2);
-        if(t1.merged){
-          t1.setNeighbors(t1.getNeighbors().left,[t3]);
-          t2.setNeighbors(tUn.left,[t3]);
-        }
         if(t2.merged){
-          t1.setNeighbors(tUn.left,[t3]);
-          t2.setNeighbors(t2.getNeighbors().left,[t3]);
+          t2.setNeighbors(t2.getNeighbors().left,[t4]);
+          t3.setNeighbors(tUn.left,[t4]);
         }
-        t3.setNeighbors([t1,t2],tUn.right);
+        if(t3.merged){
+          t2.setNeighbors(tUn.left,[t4]);
+          t3.setNeighbors(t3.getNeighbors().left,[t4]);
+        }
+        t4.setNeighbors([t2,t3],tUn.right);
         tUn.left.forEach(lN => {
-          if(t1.merged){
-            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t2,lN.getNeighbors().right[1]]:[t2]);
-          }
           if(t2.merged){
-            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t1]:[t1]);
+            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t3,lN.getNeighbors().right[1]]:[t3]);
+          }
+          if(t3.merged){
+            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t2]:[t2]);
           }
         })
         tUn.right.forEach(rN => {
           if(rN.getNeighbors().left.length===1){
-            rN.setNeighbors([t3],rN.getNeighbors().right);
+            rN.setNeighbors([t4],rN.getNeighbors().right);
           }
           else{
-            const l=rN.getNeighbors().left[0]===tU.node?[t3,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],t3]
+            const l=rN.getNeighbors().left[0]===tU.node?[t4,rN.getNeighbors().left[1]]:[rN.getNeighbors().left[0],t4]
             rN.setNeighbors(l,rN.getNeighbors().right);
           }
         })
         tU.node.setInner(new H_Node(line.right))
-        tU.node.leftChild=new Node(tUd+1,new V_Node(line),t1,t2)
-        tU.node.rightChild=t3
+        tU.node.leftChild=new Node(tUd+1,new V_Node(line),t2,t3)
+        tU.node.rightChild=t4
       }
     })
-    this.drawDAG(canvasDAG,"update");
-    this.drawRIC(canvas);
+    if(draw===undefined || draw===true){
+      this.drawDAG(canvasDAG,"update");
+      this.drawRIC(canvas);
+    }
   }
 
   drawRIC(canvas:any){
@@ -246,5 +249,29 @@ export class RICService {
 
   drawDAG(canvasDAG:any,locateOrUpdate?:string){
     this.drawService.drawDAG(canvasDAG,locateOrUpdate,this.trapUpdate)
+  }
+
+  longestLegalSearchPath(node:Node,interval:{min:number|undefined,max:number|undefined},i:number):number{
+    const inner=node.getInner()
+    if(inner instanceof V_Node){
+      let n1=this.longestLegalSearchPath(node.leftChild!,interval,i+1);
+      let n2=this.longestLegalSearchPath(node.rightChild!,interval,i+1);
+      return Math.max(n1,n2);
+    } else if(inner instanceof H_Node){
+      if(interval.min && inner.point.x<interval.min){
+        return this.longestLegalSearchPath(node.rightChild!,interval,i+1);
+      }
+      if(interval.max && inner.point.x>interval.max){
+        return this.longestLegalSearchPath(node.leftChild!,interval,i+1);
+      }
+      if((!interval.min || inner.point.x>interval.min) && (!interval.max || inner.point.x<interval.max)){
+        let n1=this.longestLegalSearchPath(node.leftChild!,{min:interval.min,max:inner.point.x},i+1);
+        let n2=this.longestLegalSearchPath(node.rightChild!,{min:inner.point.x,max:interval.max},i+1);
+        return Math.max(n1,n2);
+      }
+    } else if(inner instanceof Trapezoid){
+      return i
+    }
+    return -1;
   }
 }

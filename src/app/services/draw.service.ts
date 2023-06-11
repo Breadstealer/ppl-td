@@ -18,7 +18,7 @@ export class DRAWService {
   private ySpan:number=-1;
   private locationPoint?:Point;
   public trapUpdate:{node:Node,mode:string,mergeTrap?:Node}[]=[];
-  private visited:number[]=[]
+  private visited:Trapezoid[]=[]
 
   constructor(private linesService:LinesService,private dagService:DAGService) {
     this.updateExtremes();
@@ -28,6 +28,7 @@ export class DRAWService {
     this.extremes=this.linesService.getExtremes();
     this.xSpan=this.extremes.maxX-this.extremes.minX;
     this.ySpan=this.extremes.maxY-this.extremes.minY;
+    this.ySpan=this.ySpan==0?1:this.ySpan
     this.dagService.init()
   }
 
@@ -78,7 +79,7 @@ export class DRAWService {
     this.drawLine(line,canvas,cc,xMod,w,yMod,h);
     cc.strokeStyle="#000000"
     this.linesService.getLines().forEach(line => {
-      console.log(intersections.find((intersection)=>{return intersection.name===line.name}))
+      //console.log(intersections.find((intersection)=>{return intersection.name===line.name}))
       if(intersections.find((intersection)=>{return intersection.name===line.name})){
         cc.strokeStyle="#00FFFF"
       }
@@ -101,7 +102,8 @@ export class DRAWService {
     const trap = trapNode.getInner(); 
     if(trap instanceof Trapezoid){
       this.drawRICTrap(trap,cc,xMod,yMod,w,h)
-    } 
+    }
+    for(let t of this.visited)t.visited=false;
   }
 
   drawRICTrap(trap:Trapezoid,cc:any,xMod:number,yMod:number,w:number,h:number){
@@ -127,10 +129,11 @@ export class DRAWService {
     cc.strokeText(tl.right.name,this.calcX(tl.right.x,xMod,w),this.calcY(tl.right.y,yMod,h))
     cc.strokeText(bl.left.name,this.calcX(bl.left.x,xMod,w),this.calcY(bl.left.y,yMod,h))
     cc.strokeText(bl.right.name,this.calcX(bl.right.x,xMod,w),this.calcY(bl.right.y,yMod,h))
-    this.visited.push(trap.id)
+    trap.visited=true
+    this.visited.push(trap);
     trap.getNeighbors().right.forEach((node)=>{
       let t=node.getInner();
-      if(t instanceof Trapezoid && !this.visited.includes(t.id)){
+      if(t instanceof Trapezoid && !t.visited){
         this.drawRICTrap(t,cc,xMod,yMod,w,h)
       }   
     })
@@ -176,7 +179,7 @@ export class DRAWService {
 
   drawDAG(canvasDAG:any,locateOrUpdate?:string,trapUpdate?:{node:Node,mode:string,mergeTrap?:Node}[]){
     this.trapUpdate=trapUpdate??[];
-    const maxDepth=this.dagService.getMaxDepth();
+    const maxDepth=this.dagService.getMaxDepth()+1;
     const root=this.dagService.getRoot();
     const h=canvasDAG.height;
     const w=canvasDAG.width;
@@ -190,7 +193,7 @@ export class DRAWService {
   drawNode(cc:any,node:Node,w:number,h:number,max:number,mergedNodes:{node:Node,drawPos:number[]}[],parentw?:number,parenth?:number,leftOrRight?:number,locationPathParent?:boolean,locateOrUpdate?:string,isNew?:boolean){
     let isLocationNode=this.dagService.locationPath.includes(node);
     let wasUpdateTrapNode=this.trapUpdate.some(tU=>tU.node===node);
-    let d:number=node.getDepth();
+    let d:number=node.getDepth()+1;
     const drawHeight:number=h*d/(max+1);
     let drawWidth:number=w/(2**d);
     if(node.merged){

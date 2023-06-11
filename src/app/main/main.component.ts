@@ -15,9 +15,13 @@ import { DAGService } from '../services/dag.service';
 export class MainComponent {
   @ViewChild('canvas') canvas: any;
   @ViewChild('canvasDAG') canvasDAG: any;
+  insertMode:"reset"|"locateWorstCaseLowerBound"|"custom"|"random"="custom"
+  open:boolean=false;
   locateX:number=0;
   locateY:number=0;
   locateTrap?:number;
+  longestPath?:number;
+  maxDepth?:number;
   lines:Line[]=[];
   total:number=0;
   counter:number=0;
@@ -73,6 +77,7 @@ export class MainComponent {
   }
 
   stepBck():void {
+    this.clearUI();
     if(this.counter>0){
       this.ricService.stepBck();
       this.counter--;
@@ -89,6 +94,7 @@ export class MainComponent {
   }
 
   stepFwd():void{
+    this.clearUI();
     if(this.counter==this.total){
       this.ricService.drawRIC(this.canvas.nativeElement);
       this.ricService.drawDAG(this.canvasDAG.nativeElement);
@@ -105,8 +111,9 @@ export class MainComponent {
   }
 
   reset():void {
+    this.clearUI();
     this.ricService.reset();
-    this.ricService.drawRIC(this.canvas.nativeElement);
+    this.drawLines();
     this.ricService.drawDAG(this.canvasDAG.nativeElement);
     this.counter=0;
   }
@@ -122,8 +129,8 @@ export class MainComponent {
   }
 
   deleteLine(n:number){
-    this.linesService.deleteLine(n);
     this.reset();
+    this.linesService.deleteLine(n);
     this.total--;
   }
 
@@ -148,7 +155,7 @@ export class MainComponent {
       alert("input missing!")
       return;
     }
-    this.reset();
+    if(this.linesService.getLines().length>0)this.reset();
     let lineOrIntersections=this.linesService.createLine(x1,y1,x2,y2);
     if(lineOrIntersections instanceof Line){
       this.ricService.reset();
@@ -171,6 +178,30 @@ export class MainComponent {
     }
   }
 
+  longestLegalSearchPath(){
+    this.longestPath=this.ricService.longestLegalSearchPath(this.dagService.getRoot(),{min:undefined,max:undefined},0)
+    this.maxDepth=this.dagService.getMaxDepth();
+  }
+
+  clearUI(){
+    delete this.locateTrap
+    delete this.longestPath
+    delete this.maxDepth
+  }
+
+  skip(){
+    while(this.counter!=this.total){
+      this.counter=this.counter+this.ricService.stepFwd(this.lines[this.counter],this.canvas.nativeElement,this.canvasDAG.nativeElement,false);
+    }
+    this.ricService.drawDAG(this.canvasDAG.nativeElement);
+    this.ricService.drawRIC(this.canvas.nativeElement)
+  }
+
+  initLines(mode:'reset'|'locateWorstCaseLowerBound'){
+    this.lines=this.linesService.initLines(mode);
+    this.reset();
+  }
+
   test(){
     for(let i=0;i<1000;i++){
       while(this.counter<this.total){
@@ -181,9 +212,9 @@ export class MainComponent {
   }
 
   testInsert(){
-    for(let i=0;i<300;i++){
-      let xOff=Math.random()*10000;
-      let yOff=Math.random()*10000;
+    for(let i=0;i<100;i++){
+      let xOff=Math.random()*1000;
+      let yOff=Math.random()*1000;
       this.insertLine(Math.random()*1000+xOff,Math.random()*1000+yOff,Math.random()*1000+xOff,Math.random()*1000+yOff)
     }
   }

@@ -5,6 +5,7 @@ import { Point } from "./Point.model";
 export class Trapezoid{
     private leftNeighbors:Node[]=[];
     private rightNeighbors:Node[]=[];
+    public visited:boolean=false;
 
 
     constructor(public id:number, public left:Point,public right:Point,public top:Line,public bottom:Line){

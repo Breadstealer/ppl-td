@@ -16,28 +16,31 @@
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" (click)="drawLines()">Draw Lines</button>
+                    <button class="btn btn-primary" title="Draw all given Lines" (click)="drawLines()">Draw Lines</button>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" (click)="drawRIC()">Draw RIC</button>
+                    <button class="btn btn-primary" title="Redraw current trapezoidal decomposition" (click)="drawRIC()">Draw RIC</button>
                 </div>
             </div>
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-danger" (click)="stepBck()">Step back</button>
+                    <button class="btn btn-danger" title="Go back to previous insertion" (click)="stepBck()">Step back</button>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <span>{{ counter+1 }} / {{ total+1 }}</span>
+                    <span>{{ counter }} / {{ total }}</span>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    <button class="btn btn-success" (click)="stepFwd()">Step forward</button>
+                <div class="col-md-6">
+                    <button class="btn btn-success" title="Locate/Update next insertion" (click)="stepFwd()">Step forward</button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-warning" title="Calculate whole DAG" (click)="skip()">Skip to end</button>
                 </div>
             </div>
             <hr>
@@ -48,9 +51,9 @@
                             <p>{{line.name}}</p>
                         </div>
                         <div class="col-md-9">
-                            <button (click)="swapLineUp(i)"><span class="glyphicon glyphicon-triangle-top"></span></button>
-                            <button (click)="swapLineDown(i)"><span class="glyphicon glyphicon-triangle-bottom"></span></button>
-                            <button (click)="deleteLine(i)"><span class="glyphicon glyphicon-remove"></span></button>
+                            <button title="Place before previous Line" (click)="swapLineUp(i)"><span class="glyphicon glyphicon-triangle-top"></span></button>
+                            <button title="Place after next Line" (click)="swapLineDown(i)"><span class="glyphicon glyphicon-triangle-bottom"></span></button>
+                            <button title="Delete Line" (click)="deleteLine(i)"><span class="glyphicon glyphicon-remove"></span></button>
                         </div>
                     </div>
                 </div>
@@ -62,13 +65,27 @@
             </div> -->
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" (click)="shuffleLines()">shuffle Lines</button>
+                    <button class="btn btn-primary" title="Calculate a new order of Insertion" (click)="shuffleLines()">shuffle Lines</button>
                 </div>
             </div>
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" (click)="insertLine(x1.valueAsNumber,y1.valueAsNumber,x2.valueAsNumber,y2.valueAsNumber)">insert Line</button>
+                    <div class="btn-group" #dropdown [class.open]="open">
+                        <button type="button" class="btn dropdown-toggle" [ngClass]="insertMode==='custom'?'btn-primary':'btn-warning'" data-toggle="dropdown" (click)="open=!open">
+                            <span class="caret"></span>
+                        </button>
+                        <button *ngIf="insertMode==='custom'" class="btn btn-primary" title="Insert Line from (x1,y1) to (x2,y2)" (click)="insertLine(x1.valueAsNumber,y1.valueAsNumber,x2.valueAsNumber,y2.valueAsNumber)">Insert Line</button>
+                        <button *ngIf="insertMode==='reset'" class="btn btn-warning" title="Reset Lines to initial 5" (click)="initLines(insertMode)">Reset Lines to initial</button>
+                        <button *ngIf="insertMode==='locateWorstCaseLowerBound'" class="btn btn-warning" title="Insert Lines to show lower bound search path length for worst case insertion" (click)="initLines(insertMode)" >Insert Lines worst case</button>
+                        <button *ngIf="insertMode==='random'" class="btn btn-warning" title="Insert up to 100 random Lines" (click)="testInsert()" >Insert random Lines</button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" (click)="insertMode='custom'; open=!open">custom</a></li>
+                            <li><a class="dropdown-item" href="#" (click)="insertMode='reset'; open=!open">reset</a></li>
+                            <li><a class="dropdown-item" href="#" (click)="insertMode='locateWorstCaseLowerBound'; open=!open">worst case</a></li>
+                            <li><a class="dropdown-item" href="#" (click)="insertMode='random'; open=!open">random</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -110,7 +127,7 @@
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" (click)="locatePoint()">locate Point</button>
+                    <button class="btn btn-primary" title="Locate Point (x,y)" (click)="locatePoint()">locate Point</button>
                 </div>
             </div>
             <div class="row">
@@ -136,7 +153,33 @@
                             <label>Trapezoid</label>
                         </div>
                         <div class="col-md-8">
-                            <span #trapez>{{locateTrap}}</span>
+                            <span>{{locateTrap}}</span>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-primary" title="Calculate the longest legal search path in the DAG" (click)="longestLegalSearchPath()">Longest search path</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Longest Path</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span>{{longestPath}}</span>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Max Depth</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span>{{maxDepth}}</span>
                         </div> 
                     </div>
                 </div>

@@ -10,23 +10,45 @@ export class LinesService {
   private extremes:{minX:number,maxX:number,minY:number,maxY:number} | undefined;
   private nameNumber:number=0;
 
+  private reset=[
+    {p1x:50,p1y:250,p2x:300,p2y:50},
+    {p1x:200,p1y:300,p2x:500,p2y:250},
+    {p1x:350,p1y:375,p2x:475,p2y:275},
+    {p1x:375,p1y:375,p2x:425,p2y:350},
+    {p1x:100,p1y:300,p2x:450,p2y:500},
+  ]
+
+  //worstcaseDepthLowerBoundLocationPath
+  private locateWorstCaseLowerBound=[
+    {p1x:10,p1y:320,p2x:30,p2y:320}
+  ]
+
   constructor() {
-    this.initLines();
+    for(let i=0;i<4;i++){
+      let j=this.locateWorstCaseLowerBound.length
+      let moveX=this.locateWorstCaseLowerBound[j-1].p2x-this.locateWorstCaseLowerBound[0].p1x-5
+      let moveY=10*j
+      this.locateWorstCaseLowerBound=this.locateWorstCaseLowerBound
+      .concat(this.locateWorstCaseLowerBound
+        .map(e=> {return {p1x:e.p1x+moveX,p1y:e.p1y-moveY,p2x:e.p2x+moveX,p2y:e.p2y-moveY}}))
+      this.locateWorstCaseLowerBound=this.locateWorstCaseLowerBound
+      .concat([this.locateWorstCaseLowerBound[this.locateWorstCaseLowerBound.length-1]]
+        .map(e=> {return {p1x:this.locateWorstCaseLowerBound[j].p1x-5,p1y:e.p1y-10,p2x:e.p2x+15,p2y:e.p2y-10}}))
+    }
+    this.locateWorstCaseLowerBound.reverse()
+    this.initLines('reset');
     //this.findExtremes();
   }
 
-  initLines(){
+  initLines(mode:'reset'|'locateWorstCaseLowerBound'):Line[]{
+    let initLines:any=eval("this."+mode)
     this.lines=[]
-    for(let line of[
-      {p1x:50,p1y:250,p2x:300,p2y:50},
-      {p1x:200,p1y:300,p2x:500,p2y:250},
-      {p1x:350,p1y:375,p2x:475,p2y:275},
-      {p1x:375,p1y:375,p2x:425,p2y:350},
-      {p1x:100,p1y:300,p2x:450,p2y:500},
-    ]){
+    this.extremes=undefined
+    for(let line of initLines){
       let pushLine=this.createLine(line.p1x,line.p1y,line.p2x,line.p2y)
       if(pushLine instanceof Line)this.lines.push(pushLine!);
     }
+    return this.lines;
   }
 
   createLine(p1x:number,p1y:number,p2x:number,p2y:number):Line|{problem:"x"|"i",lines:Line[]}{

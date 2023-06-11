@@ -19,16 +19,19 @@ export class DAGService {
 
   init(){
     const extremes:any=this.linesService.getExtremes();
-    const bbOffsetX=(extremes.maxX-extremes.minX)*0.1;
-    const bbOffsetY=(extremes.maxY-extremes.minY)*0.1;
+    let xSpan=extremes.maxX-extremes.minX
+    let ySpan=extremes.maxY-extremes.minY
+    ySpan=ySpan==0?20:ySpan
+    const bbOffsetX=xSpan*0.1;
+    const bbOffsetY=ySpan*0.1;
     const UL = new Point(extremes.minX-bbOffsetX,extremes.minY-bbOffsetY);
     const UR = new Point(extremes.maxX+bbOffsetX,extremes.minY-bbOffsetY);
     const LL = new Point(extremes.minX-bbOffsetX,extremes.maxY+bbOffsetY);
     const LR = new Point(extremes.maxX+bbOffsetX,extremes.maxY+bbOffsetY);
     const T = new Line("",UL,UR);
     const B = new Line("",LL,LR);
-    this.root = new Node(1,new Trapezoid(0,UL,LR,T,B));
-    this.maxDepth=1;
+    this.root = new Node(0,new Trapezoid(0,UL,LR,T,B));
+    this.maxDepth=0;
   }
 
   locate(p: Point):Node{
