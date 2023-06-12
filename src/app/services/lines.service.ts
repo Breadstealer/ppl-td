@@ -7,7 +7,7 @@ import { Point } from '../models/Point.model';
 })
 export class LinesService {
   private lines:Line[] | undefined
-  private extremes:{minX:number,maxX:number,minY:number,maxY:number} | undefined;
+  private extremes:{minX?:number,maxX?:number,minY?:number,maxY?:number}={};
   private nameNumber:number=0;
 
   private reset=[
@@ -22,6 +22,8 @@ export class LinesService {
   private locateWorstCaseLowerBound=[
     {p1x:10,p1y:320,p2x:30,p2y:320}
   ]
+
+  private deleteAll=[]
 
   constructor() {
     for(let i=0;i<4;i++){
@@ -40,10 +42,11 @@ export class LinesService {
     //this.findExtremes();
   }
 
-  initLines(mode:'reset'|'locateWorstCaseLowerBound'):Line[]{
+  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'):Line[]{
+    this.nameNumber=0;
     let initLines:any=eval("this."+mode)
     this.lines=[]
-    this.extremes=undefined
+    this.extremes={}
     for(let line of initLines){
       let pushLine=this.createLine(line.p1x,line.p1y,line.p2x,line.p2y)
       if(pushLine instanceof Line)this.lines.push(pushLine!);
@@ -65,7 +68,7 @@ export class LinesService {
       let c=p1x<p2x;
       let left=c?p1:p2;
       let right=c?p2:p1;
-      if(!this.extremes){
+      if(Object.keys(this.extremes).length===0){
         this.extremes={
           minX:left.x,
           maxX:right.x,
@@ -74,14 +77,14 @@ export class LinesService {
         }
       }
       else{
-        if(left.x<this.extremes.minX)this.extremes.minX=left.x;
-        if(right.x>this.extremes.maxX)this.extremes.maxX=right.x;
+        if(left.x<this.extremes.minX!)this.extremes.minX=left.x;
+        if(right.x>this.extremes.maxX!)this.extremes.maxX=right.x;
         let minY=Math.min(p1y,p2y);
         let maxY=Math.max(p1y,p2y);
-        if(minY<this.extremes.minY){
+        if(minY<this.extremes.minY!){
           this.extremes.minY=minY;
         }
-        if(maxY>this.extremes.maxY){
+        if(maxY>this.extremes.maxY!){
           this.extremes.maxY=maxY;
         }
       }
@@ -131,14 +134,14 @@ export class LinesService {
     this.findExtremes();
   }
 
-  getExtremes():{minX:number,maxX:number,minY:number,maxY:number} | undefined{
+  getExtremes():{minX?:number,maxX?:number,minY?:number,maxY?:number}{
     return this.extremes;
   }
 
   findExtremes(){
-    this.extremes=undefined;
+    this.extremes={};
     this.lines?.forEach(line => {
-      if(!this.extremes){
+      if(Object.keys(this.extremes).length===0){
         this.extremes={
           minX:line.left.x,
           maxX:line.right.x,
@@ -146,14 +149,14 @@ export class LinesService {
           maxY:Math.max(line.left.y,line.right.y)}
       }
       else{
-        if(line.left.x<this.extremes.minX)this.extremes.minX=line.left.x;
-        if(line.right.x>this.extremes.maxX)this.extremes.maxX=line.right.x;
+        if(line.left.x<this.extremes.minX!)this.extremes.minX=line.left.x;
+        if(line.right.x>this.extremes.maxX!)this.extremes.maxX=line.right.x;
         let minY=Math.min(line.left.y,line.right.y);
         let maxY=Math.max(line.left.y,line.right.y);
-        if(minY<this.extremes.minY){
+        if(minY<this.extremes.minY!){
           this.extremes.minY=minY;
         }
-        if(maxY>this.extremes.maxY){
+        if(maxY>this.extremes.maxY!){
           this.extremes.maxY=maxY;
         }
       }
@@ -170,6 +173,10 @@ export class LinesService {
         let lambda = ((r.y - l.y) * (r.x - x1) + (l.x - r.x) * (r.y - y1)) / det
         let gamma = ((y1 - y2) * (r.x - x1) + (x2 - x1) * (r.y - y1)) / det
         if(0<lambda && lambda<1 && 0<gamma&&gamma<1) intersections.push(line)
+      } else if(((r.y-l.y)/(r.x-l.x))*-l.x+l.y === ((y2-y1)/(x2-x1))*-x1+y1){ //self made addition if on same line 
+        if(!((l.x<x1&&l.x<x2&&r.x<x1&&r.x<x2)||(l.x>x1&&l.x>x2&&r.x>x1&&r.x>x2))){ //look for overlaps
+          intersections.push(line)
+        }
       }
     }
     return intersections.length>0?intersections:false

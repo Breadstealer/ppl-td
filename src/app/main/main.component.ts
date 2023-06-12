@@ -6,6 +6,7 @@ import { Point } from '../models/Point.model';
 import { Trapezoid } from '../models/Trapezoid.model';
 import { DRAWService } from '../services/draw.service';
 import { DAGService } from '../services/dag.service';
+import { Node } from '../models/Node.model';
 
 @Component({
   selector: 'app-main',
@@ -15,13 +16,15 @@ import { DAGService } from '../services/dag.service';
 export class MainComponent {
   @ViewChild('canvas') canvas: any;
   @ViewChild('canvasDAG') canvasDAG: any;
-  insertMode:"reset"|"locateWorstCaseLowerBound"|"custom"|"random"="custom"
+  insertMode:"reset"|"locateWorstCaseLowerBound"|"custom"|"random"|"deleteAll"="custom"
   open:boolean=false;
   locateX:number=0;
   locateY:number=0;
   locateTrap?:number;
   longestPath?:number;
   maxDepth?:number;
+  nodeAmount?:number;
+  trapAmount?:number;
   lines:Line[]=[];
   total:number=0;
   counter:number=0;
@@ -62,10 +65,8 @@ export class MainComponent {
   resizeCanvas(){
     this.canvas.nativeElement.style.width=(window.innerWidth*10)/12.15+"px";
     this.canvas.nativeElement.style.height=window.innerHeight/2.05+"px";
-    this.ricService.drawRIC(this.canvas.nativeElement);
     this.canvasDAG.nativeElement.style.width=(window.innerWidth*10)/12.15+"px";
     this.canvasDAG.nativeElement.style.height=window.innerHeight/2.05+"px";
-    this.ricService.drawDAG(this.canvasDAG.nativeElement);
   }
 
   drawLines(): void {
@@ -116,6 +117,7 @@ export class MainComponent {
     this.drawLines();
     this.ricService.drawDAG(this.canvasDAG.nativeElement);
     this.counter=0;
+    this.total=this.lines.length
   }
 
   swapLineUp(n:number){
@@ -129,9 +131,8 @@ export class MainComponent {
   }
 
   deleteLine(n:number){
-    this.reset();
     this.linesService.deleteLine(n);
-    this.total--;
+    this.reset();
   }
 
   point(event:MouseEvent){
@@ -178,15 +179,33 @@ export class MainComponent {
     }
   }
 
+  analyzeDAG(){
+    this.longestLegalSearchPath();
+    this.maxDepth=this.dagService.getMaxDepth();
+    this.getNodeAmount();
+    this.getTrapAmount();
+  }
+
+  getNodeAmount(){
+    this.nodeAmount=this.dagService.getNodeAmount(this.dagService.getRoot())
+    this.dagService.resetVisited();
+  }
+
+  getTrapAmount(){
+    this.trapAmount=this.dagService.getTrapAmount(this.dagService.locate(new Point(this.linesService.getExtremes()?.minX!,0)));
+    this.dagService.resetVisited();
+  }
+
   longestLegalSearchPath(){
     this.longestPath=this.ricService.longestLegalSearchPath(this.dagService.getRoot(),{min:undefined,max:undefined},0)
-    this.maxDepth=this.dagService.getMaxDepth();
   }
 
   clearUI(){
     delete this.locateTrap
     delete this.longestPath
     delete this.maxDepth
+    delete this.nodeAmount
+    delete this.trapAmount
   }
 
   skip(){
@@ -197,7 +216,7 @@ export class MainComponent {
     this.ricService.drawRIC(this.canvas.nativeElement)
   }
 
-  initLines(mode:'reset'|'locateWorstCaseLowerBound'){
+  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'){
     this.lines=this.linesService.initLines(mode);
     this.reset();
   }

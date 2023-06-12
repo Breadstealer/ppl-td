@@ -4,6 +4,7 @@ export class Line {
     name: string;
     left: Point;
     right: Point;
+    visited:boolean=false;
 
     constructor(name:string,p1:Point,p2:Point){
         if(p1.x==p2.x)throw new Error("Vertical Line not allowed!");

@@ -12,6 +12,7 @@ export class DAGService {
   private root:Node|undefined;
   private maxDepth:number=0;
   public locationPath:Node[]=[];
+  private visited:Node[]=[];
 
   constructor(private linesService:LinesService) {
     this.init();
@@ -49,5 +50,38 @@ export class DAGService {
 
   getRoot():Node{
     return this.root!;
+  }
+
+  getNodeAmount(node:Node):number{
+    node.visited=true
+    this.visited.push(node)
+    if(node.getInner() instanceof Trapezoid){
+      return this.visited.length;
+    } else {
+      let children:Node[]=[node.leftChild!,node.rightChild!]
+      for(let n of children)
+      if(!n.visited){
+        this.getNodeAmount(n)
+      }
+    }
+    return this.visited.length;
+  }
+
+  getTrapAmount(trapNode:Node):number{
+    trapNode.visited=true
+    this.visited.push(trapNode)
+    let neighbors:Node[]=trapNode.getNeighbors().right
+    for(let t of neighbors)
+    if(!t.visited){
+      this.getTrapAmount(t)
+    }
+    return this.visited.length;
+  }
+
+  resetVisited(){
+    for(let n of this.visited){
+      n.visited=false;
+    }
+    this.visited=[]
   }
 }

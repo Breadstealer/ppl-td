@@ -13,34 +13,24 @@
             </div>
         </div>
         <div class="col-md-2">
-            <hr>
+            <br>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" title="Draw all given Lines" (click)="drawLines()">Draw Lines</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <button class="btn btn-primary" title="Redraw current trapezoidal decomposition" (click)="drawRIC()">Draw RIC</button>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" title="Draw all given Lines" (click)="drawLines()">Draw Lines</button>
+                        <button class="btn btn-primary" title="Redraw current trapezoidal decomposition" (click)="drawRIC()">Draw RIC</button>
+                    </div>
                 </div>
             </div>
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-danger" title="Go back to previous insertion" (click)="stepBck()">Step back</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <span>{{ counter }} / {{ total }}</span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <button class="btn btn-success" title="Locate/Update next insertion" (click)="stepFwd()">Step forward</button>
-                </div>
-                <div class="col-md-6">
-                    <button class="btn btn-warning" title="Calculate whole DAG" (click)="skip()">Skip to end</button>
+                    <div class="btn-group">
+                        <button class="btn btn-danger" title="Go back to previous insertion" (click)="stepBck()"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                        <a class="btn disabled" role="button">{{ counter }} / {{ total }}</a>
+                        <button class="btn btn-success" title="Locate/Update next insertion" (click)="stepFwd()"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                        <button class="btn btn-warning" title="Perform all remaining insertion steps" (click)="skip()"><span class="glyphicon glyphicon-triangle-right"></span><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    </div>
                 </div>
             </div>
             <hr>
@@ -65,7 +55,10 @@
             </div> -->
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" title="Calculate a new order of Insertion" (click)="shuffleLines()">shuffle Lines</button>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" title="Calculate a new order of Insertion" (click)="shuffleLines()">Shuffle Lines</button>
+                        <button class="btn btn-danger" title="Delete all Lines" (click)="initLines('deleteAll')" >Delete all Lines</button>
+                    </div>
                 </div>
             </div>
             <hr>
@@ -127,7 +120,7 @@
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" title="Locate Point (x,y)" (click)="locatePoint()">locate Point</button>
+                    <button class="btn btn-primary" title="Locate Point (x,y)" (click)="locatePoint()">Locate Point</button>
                 </div>
             </div>
             <div class="row">
@@ -161,7 +154,7 @@
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" title="Calculate the longest legal search path in the DAG" (click)="longestLegalSearchPath()">Longest search path</button>
+                    <button class="btn btn-primary" title="Analyze the DAG for the properties below" (click)="analyzeDAG()">Analyze DAG</button>
                 </div>
             </div>
             <div class="row">
@@ -180,6 +173,22 @@
                         </div>
                         <div class="col-md-4">
                             <span>{{maxDepth}}</span>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Node Amount</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span>{{nodeAmount}}</span>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Trapezoid Amount</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span>{{trapAmount}}</span>
                         </div> 
                     </div>
                 </div>

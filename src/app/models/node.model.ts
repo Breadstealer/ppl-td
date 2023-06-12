@@ -7,6 +7,7 @@ export class Node {
     private inner:H_Node|V_Node|Trapezoid;
     private depth:number;
     public merged:boolean=false;
+    public visited:boolean=false;
 
     constructor(depth:number,inner:H_Node|V_Node|Trapezoid,public leftChild?:Node,public rightChild?:Node){
         this.depth=depth;
