@@ -165,12 +165,12 @@ export class MainComponent {
       this.drawService.drawLines(this.canvas.nativeElement);
     } else {
       if(lineOrIntersections.problem==="i"){
-        let line=new Line("intersecting",new Point(x1,y1),new Point(x2,y2))
+        let line=new Line("intersecting",new Point(x1,y1,"intersecting"),new Point(x2,y2,"intersecting"))
         this.drawService.drawIntersections(this.canvas.nativeElement,line,lineOrIntersections.lines)
         let names=lineOrIntersections.lines.map(item => item.name)
         //alert("Segment intersecting "+names)
       } else if(lineOrIntersections.problem==="x"){
-        let line=new Line("sharing X",new Point(x1,y1),new Point(x2,y2))
+        let line=new Line("sharing X",new Point(x1,y1,"sharing X"),new Point(x2,y2,"sharing X"))
         this.drawService.drawIntersections(this.canvas.nativeElement,line,lineOrIntersections.lines)
         let names=lineOrIntersections.lines.map(item => item.name)
         //alert("Point of segment sharing X with "+names)

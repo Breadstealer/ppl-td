@@ -25,10 +25,10 @@ export class DAGService {
     ySpan=ySpan==0?20:ySpan
     const bbOffsetX=xSpan*0.1;
     const bbOffsetY=ySpan*0.1;
-    const UL = new Point(extremes.minX-bbOffsetX,extremes.minY-bbOffsetY);
-    const UR = new Point(extremes.maxX+bbOffsetX,extremes.minY-bbOffsetY);
-    const LL = new Point(extremes.minX-bbOffsetX,extremes.maxY+bbOffsetY);
-    const LR = new Point(extremes.maxX+bbOffsetX,extremes.maxY+bbOffsetY);
+    const UL = new Point(extremes.minX-bbOffsetX,extremes.minY-bbOffsetY," ");
+    const UR = new Point(extremes.maxX+bbOffsetX,extremes.minY-bbOffsetY," ");
+    const LL = new Point(extremes.minX-bbOffsetX,extremes.maxY+bbOffsetY," ");
+    const LR = new Point(extremes.maxX+bbOffsetX,extremes.maxY+bbOffsetY," ");
     const T = new Line("",UL,UR);
     const B = new Line("",LL,LR);
     this.root = new Node(0,new Trapezoid(0,UL,LR,T,B));

@@ -13,7 +13,7 @@ export class Line {
         this.right=c?p2:p1;
         this.name=name;
         try{
-            const nameNumber:number=<any>name.substring(1);
+            const nameNumber:number=parseInt(name.substring(1));
             this.left.setName("l"+nameNumber);
             this.right.setName("r"+nameNumber);
         }catch{}

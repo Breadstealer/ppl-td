@@ -182,12 +182,17 @@ export class LinesService {
     return intersections.length>0?intersections:false
   }
 
-  hasPointOnSameX(x1:number,x2:number):Line[]|boolean{
+  hasPointOnSameX(x1:number,y1:number,x2:number,y2:number):Line[]|boolean{
     let lines:Line[]=[]
     for(let line of this.lines!){
       let r,l
-      [r,l]=[line.right.x,line.left.x]
-      if([r,l].includes(x1)||[r,l].includes(x2))lines.push(line)
+      [r,l]=[line.right,line.left]
+      if(
+        (r.x===x1&&r.y!==y1)||
+        (l.x===x1&&l.y!==y1)||
+        (r.x===x2&&r.y!==y2)||
+        (l.x===x2&&l.y!==y2)
+      )lines.push(line)
     }
     return lines.length>0?lines:false
   }

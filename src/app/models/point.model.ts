@@ -6,10 +6,15 @@ export class Point{
     constructor(x:number,y:number,name?:string){
         this.x=x;
         this.y=y;
-        this.setName(name!);
+        this.setName(name??"");
+    }
+
+    isEqual(x:number,y:number):boolean{
+        if(x===this.x&&y===this.y)return true
+        return false
     }
 
     setName(name:string){
-        this.name=name;
+        if(this.name==="")this.name+=name;
     }
 }
