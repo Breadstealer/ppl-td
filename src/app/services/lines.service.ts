@@ -26,13 +26,31 @@ export class LinesService {
   private deleteAll=[]
 
   private polygons=[
-    {p1x:0,p1y:100,p2x:100,p2y:100},
-    {p1x:100,p1y:100,p2x:50,p2y:50},
-    {p1x:50,p1y:50,p2x:0,p2y:100},
-    {p1x:0,p1y:100,p2x:200,p2y:200},
-    {p1x:200,p1y:200,p2x:300,p2y:100},
-    {p1x:300,p1y:100,p2x:50,p2y:50},
-    {p1x:100,p1y:100,p2x:150,p2y:100},
+    {p1x:0,p1y:200,p2x:40,p2y:350},
+    {p1x:40,p1y:350,p2x:60,p2y:550},
+    {p1x:60,p1y:550,p2x:80,p2y:770},
+    {p1x:80,p1y:770,p2x:160,p2y:920},
+    {p1x:160,p1y:920,p2x:140,p2y:1100},
+    {p1x:140,p1y:1100,p2x:75,p2y:950},
+    {p1x:75,p1y:950,p2x:80,p2y:770},
+
+    {p1x:230,p1y:420,p2x:210,p2y:300},
+    {p1x:210,p1y:300,p2x:190,p2y:250},
+    {p1x:190,p1y:250,p2x:165,p2y:240},
+    {p1x:165,p1y:240,p2x:130,p2y:260},
+    {p1x:130,p1y:260,p2x:125,p2y:170},
+    {p1x:125,p1y:170,p2x:162,p2y:150},
+    {p1x:162,p1y:150,p2x:165,p2y:240},
+
+    {p1x:-30,p1y:800,p2x:10,p2y:500},
+    {p1x:-30,p1y:800,p2x:15,p2y:750},
+    {p1x:-30,p1y:800,p2x:5,p2y:850},
+    {p1x:-30,p1y:800,p2x:20,p2y:1100},
+    {p1x:50,p1y:800,p2x:10,p2y:500},
+    {p1x:50,p1y:800,p2x:25,p2y:750},
+    {p1x:50,p1y:800,p2x:-5,p2y:900},
+    {p1x:50,p1y:800,p2x:20,p2y:1100},
+    
   ]
 
   constructor() {
@@ -48,7 +66,7 @@ export class LinesService {
         .map(e=> {return {p1x:this.locateWorstCaseLowerBound[j].p1x-5,p1y:e.p1y-10,p2x:e.p2x+15,p2y:e.p2y-10}}))
     }
     this.locateWorstCaseLowerBound.reverse()
-    this.initLines('polygons');
+    this.initLines('reset');
     //this.findExtremes();
   }
 

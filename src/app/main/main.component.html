@@ -71,11 +71,13 @@
                         <button *ngIf="insertMode==='custom'" class="btn btn-primary" title="Insert Line from (x1,y1) to (x2,y2)" (click)="insertLine(x1.valueAsNumber,y1.valueAsNumber,x2.valueAsNumber,y2.valueAsNumber)">Insert Line</button>
                         <button *ngIf="insertMode==='reset'" class="btn btn-warning" title="Reset Lines to initial 5" (click)="initLines(insertMode)">Reset Lines to initial</button>
                         <button *ngIf="insertMode==='locateWorstCaseLowerBound'" class="btn btn-warning" title="Insert Lines to show lower bound search path length for worst case insertion" (click)="initLines(insertMode)" >Insert Lines worst case</button>
+                        <button *ngIf="insertMode==='polygons'" class="btn btn-warning" title="Insert Lines to show Polygon functionality" (click)="initLines(insertMode)" >Insert Polygons</button>
                         <button *ngIf="insertMode==='random'" class="btn btn-warning" title="Insert up to 100 random Lines" (click)="testInsert()" >Insert random Lines</button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#" (click)="insertMode='custom'; open=!open">custom</a></li>
                             <li><a class="dropdown-item" href="#" (click)="insertMode='reset'; open=!open">reset</a></li>
                             <li><a class="dropdown-item" href="#" (click)="insertMode='locateWorstCaseLowerBound'; open=!open">worst case</a></li>
+                            <li><a class="dropdown-item" href="#" (click)="insertMode='polygons'; open=!open">polygons</a></li>
                             <li><a class="dropdown-item" href="#" (click)="insertMode='random'; open=!open">random</a></li>
                         </ul>
                     </div>

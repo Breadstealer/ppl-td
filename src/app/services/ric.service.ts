@@ -149,6 +149,7 @@ export class RICService {
             rN.setNeighbors(l,rN.getNeighbors().right);
           }
         })
+        if(tUn.left.length===0)this.dagService.entryNodes.push(t1)
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1
         tU.node.rightChild=new Node(tUd+1,new H_Node(line.right),new Node(tUd+2,new V_Node(line),t2,t3),t4)
@@ -180,6 +181,7 @@ export class RICService {
             this.trapUpdate[index+1]={...this.trapUpdate[index+1],mergeTrap:t3}
           }
         })
+        if(tUn.left.length===0)this.dagService.entryNodes.push(t1)
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1;
         tU.node.rightChild=new Node(tUd+1,new V_Node(line),t2,t3);
@@ -210,10 +212,10 @@ export class RICService {
         }
         tUn.left.forEach(lN =>{
           if(t2.merged){
-            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t3,lN.getNeighbors().right[1]]:[t3]);
+            lN.setNeighbors(lN.getNeighbors().left,lN.getNeighbors().right.length!==1?[t3,lN.getNeighbors().right[1]]:[t3]);
           }
           if(t3.merged){
-            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t2]:[t2]);
+            lN.setNeighbors(lN.getNeighbors().left,lN.getNeighbors().right.length!==1?[lN.getNeighbors().right[0],t2]:[t2]);
           }
         })
         tUn.right.forEach(rN =>{
@@ -258,10 +260,10 @@ export class RICService {
         t4.setNeighbors([t2,t3],tUn.right);
         tUn.left.forEach(lN => {
           if(t2.merged){
-            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[t3,lN.getNeighbors().right[1]]:[t3]);
+            lN.setNeighbors(lN.getNeighbors().left,lN.getNeighbors().right.length!==1?[t3,lN.getNeighbors().right[1]]:[t3]);
           }
           if(t3.merged){
-            lN.setNeighbors(lN.getNeighbors().left,tUn.left.length===1?[lN.getNeighbors().right[0],t2]:[t2]);
+            lN.setNeighbors(lN.getNeighbors().left,lN.getNeighbors().right.length!==1?[lN.getNeighbors().right[0],t2]:[t2]);
           }
         })
         tUn.right.forEach(rN => {
@@ -292,6 +294,8 @@ export class RICService {
             t3.setLeftNeighbors([tUn.left[0]])
             this.dagService.entryNodes.push(t2)
           }
+        }else{
+          if(tUn.left.length===0)this.dagService.entryNodes.push(t2,t3)
         }
         if(tUn.right.length===2){
           t2.setRightNeighbors([tUn.right[0]])
@@ -349,6 +353,8 @@ export class RICService {
             t3.setLeftNeighbors([tUn.left[0]])
             this.dagService.entryNodes.push(t2)
           }
+        }else{
+          if(tUn.left.length===0)this.dagService.entryNodes.push(t2,t3)
         }
         t2.setRightNeighbors([t4])
         t3.setRightNeighbors([t4])
@@ -394,6 +400,8 @@ export class RICService {
             t3.setLeftNeighbors([tUn.left[0]])
             this.dagService.entryNodes.push(t2)
           }
+        }else{
+          if(tUn.left.length===0)this.dagService.entryNodes.push(t2,t3)
         }
         t2.setRightNeighbors(tUn.right)
         t3.setRightNeighbors(tUn.right)
@@ -439,6 +447,7 @@ export class RICService {
           t3.setDepth(Math.max(t3.getDepth(),tUd+1));
           t3.merge(line.right);
         }
+        this.dagService.setMaxDepth(tUd+1);
         if(t2.merged){
           t2.setLeftNeighbors(t2.getNeighbors().left);
           t3.setLeftNeighbors(tUn.left);
@@ -522,6 +531,7 @@ export class RICService {
             }
           }
         })
+        if(tUn.left.length===0)this.dagService.entryNodes.push(t1)
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1;
         tU.node.rightChild=new Node(tUd+1,new V_Node(line),t2,t3);
