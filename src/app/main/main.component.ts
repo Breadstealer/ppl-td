@@ -16,7 +16,7 @@ import { Node } from '../models/Node.model';
 export class MainComponent {
   @ViewChild('canvas') canvas: any;
   @ViewChild('canvasDAG') canvasDAG: any;
-  insertMode:"reset"|"locateWorstCaseLowerBound"|"custom"|"random"|"deleteAll"="custom"
+  insertMode:"reset"|"locateWorstCaseLowerBound"|"custom"|"random"|"deleteAll"|"polygons"="custom"
   open:boolean=false;
   locateX:number=0;
   locateY:number=0;
@@ -216,7 +216,7 @@ export class MainComponent {
     this.ricService.drawRIC(this.canvas.nativeElement)
   }
 
-  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'){
+  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'|'polygons'){
     this.lines=this.linesService.initLines(mode);
     this.reset();
   }

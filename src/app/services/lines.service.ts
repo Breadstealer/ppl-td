@@ -25,6 +25,34 @@ export class LinesService {
 
   private deleteAll=[]
 
+  private polygons=[
+    {p1x:0,p1y:200,p2x:40,p2y:350},
+    {p1x:40,p1y:350,p2x:60,p2y:550},
+    {p1x:60,p1y:550,p2x:80,p2y:770},
+    {p1x:80,p1y:770,p2x:160,p2y:920},
+    {p1x:160,p1y:920,p2x:140,p2y:1100},
+    {p1x:140,p1y:1100,p2x:75,p2y:950},
+    {p1x:75,p1y:950,p2x:80,p2y:770},
+
+    {p1x:230,p1y:420,p2x:210,p2y:300},
+    {p1x:210,p1y:300,p2x:190,p2y:250},
+    {p1x:190,p1y:250,p2x:165,p2y:240},
+    {p1x:165,p1y:240,p2x:130,p2y:260},
+    {p1x:130,p1y:260,p2x:125,p2y:170},
+    {p1x:125,p1y:170,p2x:162,p2y:150},
+    {p1x:162,p1y:150,p2x:165,p2y:240},
+
+    {p1x:-30,p1y:800,p2x:10,p2y:500},
+    {p1x:-30,p1y:800,p2x:15,p2y:750},
+    {p1x:-30,p1y:800,p2x:5,p2y:850},
+    {p1x:-30,p1y:800,p2x:20,p2y:1100},
+    {p1x:50,p1y:800,p2x:10,p2y:500},
+    {p1x:50,p1y:800,p2x:25,p2y:750},
+    {p1x:50,p1y:800,p2x:-5,p2y:900},
+    {p1x:50,p1y:800,p2x:20,p2y:1100},
+    
+  ]
+
   constructor() {
     for(let i=0;i<4;i++){
       let j=this.locateWorstCaseLowerBound.length
@@ -42,7 +70,7 @@ export class LinesService {
     //this.findExtremes();
   }
 
-  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'):Line[]{
+  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'|'polygons'):Line[]{
     this.nameNumber=0;
     let initLines:any=eval("this."+mode)
     this.lines=[]
@@ -57,14 +85,15 @@ export class LinesService {
   createLine(p1x:number,p1y:number,p2x:number,p2y:number):Line|{problem:"x"|"i",lines:Line[]}{
     if(p1x==p2x)throw new Error("Vertical Line not allowed!");
     let iProblem=this.collidesAnyLine(p1x,p1y,p2x,p2y);
-    let xProblem=this.hasPointOnSameX(p1x,p2x);
+    let xProblem=this.hasPointOnSameX(p1x,p1y,p2x,p2y);
+    let sharedEndpoints=this.sharedEndpoints(p1x,p1y,p2x,p2y);
     if(xProblem && xProblem!=true){
       return {problem:"x",lines:xProblem};
     } else if(iProblem && iProblem!=true){
       return {problem:"i",lines:iProblem};
     } else {
-      const p1=new Point(p1x,p1y);
-      const p2=new Point(p2x,p2y);
+      let p1=sharedEndpoints.left?sharedEndpoints.left:new Point(p1x,p1y);
+      let p2=sharedEndpoints.right?sharedEndpoints.right:new Point(p2x,p2y);
       let c=p1x<p2x;
       let left=c?p1:p2;
       let right=c?p2:p1;
@@ -174,7 +203,7 @@ export class LinesService {
         let gamma = ((y1 - y2) * (r.x - x1) + (x2 - x1) * (r.y - y1)) / det
         if(0<lambda && lambda<1 && 0<gamma&&gamma<1) intersections.push(line)
       } else if(((r.y-l.y)/(r.x-l.x))*-l.x+l.y === ((y2-y1)/(x2-x1))*-x1+y1){ //self made addition if on same line 
-        if(!((l.x<x1&&l.x<x2&&r.x<x1&&r.x<x2)||(l.x>x1&&l.x>x2&&r.x>x1&&r.x>x2))){ //look for overlaps
+        if(!((l.x<=x1&&l.x<=x2&&r.x<=x1&&r.x<=x2)||(l.x>=x1&&l.x>=x2&&r.x>=x1&&r.x>=x2))){ //look for overlaps
           intersections.push(line)
         }
       }
@@ -195,5 +224,18 @@ export class LinesService {
       )lines.push(line)
     }
     return lines.length>0?lines:false
+  }
+
+  sharedEndpoints(x1:number,y1:number,x2:number,y2:number):{left?:Point,right?:Point}{
+    let points:{left?:Point,right?:Point}={}
+    for(let line of this.lines!){
+      let r,l
+      [r,l]=[line.right,line.left]
+      if(r.isEqual(x1,y1))points.left=r
+      if(r.isEqual(x2,y2))points.right=r
+      if(l.isEqual(x1,y1))points.left=l
+      if(l.isEqual(x2,y2))points.right=l
+    }
+    return points
   }
 }

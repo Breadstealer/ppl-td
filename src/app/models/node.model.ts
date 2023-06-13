@@ -42,11 +42,13 @@ export class Node {
         if(this.inner instanceof Trapezoid){
             return this;
         }
-        let child:"l"|"r"=this.inner.leftOrRight(p);
+        let child:"l"|"r"|Point=this.inner.leftOrRight(p);
         if(child==="l"){
             return this.leftChild?.locate(p,locationPath)!;
-        } else {
+        } else if(child==="r"){
             return this.rightChild?.locate(p,locationPath)!;
+        } else {
+            return this
         }
         //return this.inner.locate(p,locationPath);
     }
@@ -54,6 +56,18 @@ export class Node {
     setNeighbors(left:Node[],right:Node[]){
         if(this.inner instanceof Trapezoid){
             this.inner.setLeftNeighbors(left);
+            this.inner.setRightNeighbors(right);
+        }
+    }
+
+    setLeftNeighbors(left:Node[]){
+        if(this.inner instanceof Trapezoid){
+            this.inner.setLeftNeighbors(left);
+        }
+    }
+
+    setRightNeighbors(right:Node[]){
+        if(this.inner instanceof Trapezoid){
             this.inner.setRightNeighbors(right);
         }
     }

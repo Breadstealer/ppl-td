@@ -103,6 +103,12 @@ export class DRAWService {
     if(trap instanceof Trapezoid){
       this.drawRICTrap(trap,canvas,cc,xMod,yMod,w,h)
     }
+    for(let node of this.dagService.entryNodes){
+      let trap=node.getInner()
+      if(trap instanceof Trapezoid){
+        this.drawRICTrap(trap,canvas,cc,xMod,yMod,w,h)
+      }
+    }
     for(let n of this.visited)n.visited=false;
   }
 
@@ -130,12 +136,19 @@ export class DRAWService {
     cc.stroke();
     cc.strokeText(trap.id,this.calcIdX(lp.x,rp.x,xMod,w),this.calcIdY(tl.func(lp),tl.func(rp),bl.func(lp),bl.func(rp),yMod,h));
     trap.getNeighbors().right.forEach((node)=>{
-      let t=node.getInner();
-      if(t instanceof Trapezoid && !node.visited){
+      let t
+      try{
+        t=node.getInner();
+        if(t instanceof Trapezoid && !node.visited){
         node.visited=true;
         this.visited.push(node);
         this.drawRICTrap(t,canvas,cc,xMod,yMod,w,h)
-      }   
+      } 
+      }catch{
+        console.log(trap,node,t)
+      }
+      
+        
     })
   }
 
