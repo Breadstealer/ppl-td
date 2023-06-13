@@ -5,7 +5,8 @@ export class H_Node {
 
     }
 
-    leftOrRight(p:Point):"l"|"r"{
+    leftOrRight(p:Point):"l"|"r"|Point{
+        if(p.x===this.point.x&&p.y===this.point.y)return this.point
         if(p.x>this.point.x){
             return "r";
         }

@@ -25,6 +25,16 @@ export class LinesService {
 
   private deleteAll=[]
 
+  private polygons=[
+    {p1x:0,p1y:100,p2x:100,p2y:100},
+    {p1x:100,p1y:100,p2x:50,p2y:50},
+    {p1x:50,p1y:50,p2x:0,p2y:100},
+    {p1x:0,p1y:100,p2x:200,p2y:200},
+    {p1x:200,p1y:200,p2x:300,p2y:100},
+    {p1x:300,p1y:100,p2x:50,p2y:50},
+    {p1x:100,p1y:100,p2x:150,p2y:100},
+  ]
+
   constructor() {
     for(let i=0;i<4;i++){
       let j=this.locateWorstCaseLowerBound.length
@@ -38,11 +48,11 @@ export class LinesService {
         .map(e=> {return {p1x:this.locateWorstCaseLowerBound[j].p1x-5,p1y:e.p1y-10,p2x:e.p2x+15,p2y:e.p2y-10}}))
     }
     this.locateWorstCaseLowerBound.reverse()
-    this.initLines('reset');
+    this.initLines('polygons');
     //this.findExtremes();
   }
 
-  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'):Line[]{
+  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'|'polygons'):Line[]{
     this.nameNumber=0;
     let initLines:any=eval("this."+mode)
     this.lines=[]
@@ -57,14 +67,15 @@ export class LinesService {
   createLine(p1x:number,p1y:number,p2x:number,p2y:number):Line|{problem:"x"|"i",lines:Line[]}{
     if(p1x==p2x)throw new Error("Vertical Line not allowed!");
     let iProblem=this.collidesAnyLine(p1x,p1y,p2x,p2y);
-    let xProblem=this.hasPointOnSameX(p1x,p2x);
+    let xProblem=this.hasPointOnSameX(p1x,p1y,p2x,p2y);
+    let sharedEndpoints=this.sharedEndpoints(p1x,p1y,p2x,p2y);
     if(xProblem && xProblem!=true){
       return {problem:"x",lines:xProblem};
     } else if(iProblem && iProblem!=true){
       return {problem:"i",lines:iProblem};
     } else {
-      const p1=new Point(p1x,p1y);
-      const p2=new Point(p2x,p2y);
+      let p1=sharedEndpoints.left?sharedEndpoints.left:new Point(p1x,p1y);
+      let p2=sharedEndpoints.right?sharedEndpoints.right:new Point(p2x,p2y);
       let c=p1x<p2x;
       let left=c?p1:p2;
       let right=c?p2:p1;
@@ -174,7 +185,7 @@ export class LinesService {
         let gamma = ((y1 - y2) * (r.x - x1) + (x2 - x1) * (r.y - y1)) / det
         if(0<lambda && lambda<1 && 0<gamma&&gamma<1) intersections.push(line)
       } else if(((r.y-l.y)/(r.x-l.x))*-l.x+l.y === ((y2-y1)/(x2-x1))*-x1+y1){ //self made addition if on same line 
-        if(!((l.x<x1&&l.x<x2&&r.x<x1&&r.x<x2)||(l.x>x1&&l.x>x2&&r.x>x1&&r.x>x2))){ //look for overlaps
+        if(!((l.x<=x1&&l.x<=x2&&r.x<=x1&&r.x<=x2)||(l.x>=x1&&l.x>=x2&&r.x>=x1&&r.x>=x2))){ //look for overlaps
           intersections.push(line)
         }
       }
@@ -195,5 +206,18 @@ export class LinesService {
       )lines.push(line)
     }
     return lines.length>0?lines:false
+  }
+
+  sharedEndpoints(x1:number,y1:number,x2:number,y2:number):{left?:Point,right?:Point}{
+    let points:{left?:Point,right?:Point}={}
+    for(let line of this.lines!){
+      let r,l
+      [r,l]=[line.right,line.left]
+      if(r.isEqual(x1,y1))points.left=r
+      if(r.isEqual(x2,y2))points.right=r
+      if(l.isEqual(x1,y1))points.left=l
+      if(l.isEqual(x2,y2))points.right=l
+    }
+    return points
   }
 }

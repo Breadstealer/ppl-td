@@ -4,6 +4,7 @@ export class Line {
     name: string;
     left: Point;
     right: Point;
+    //slope: number;
     visited:boolean=false;
 
     constructor(name:string,p1:Point,p2:Point){
@@ -11,6 +12,7 @@ export class Line {
         var c=p1.x<p2.x;
         this.left=c?p1:p2;
         this.right=c?p2:p1;
+        //this.slope=(this.right.y-this.left.y)/(this.right.x-this.left.x)
         this.name=name;
         try{
             const nameNumber:number=parseInt(name.substring(1));

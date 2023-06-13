@@ -13,12 +13,14 @@ export class DAGService {
   private maxDepth:number=0;
   public locationPath:Node[]=[];
   private visited:Node[]=[];
+  public entryNodes:Node[]=[];
 
   constructor(private linesService:LinesService) {
     this.init();
   }
 
   init(){
+    this.entryNodes=[]
     const extremes:any=this.linesService.getExtremes();
     let xSpan=extremes.maxX-extremes.minX
     let ySpan=extremes.maxY-extremes.minY
