@@ -210,7 +210,7 @@ export class MainComponent {
     this.getTrapAmount();
     this.getEdgeAmount();
     if(!isNaN(c1)){
-      this.meetsSizeBound=(this.nodeAmount!+this.edgeAmount!)>c1*this.total?false:true;
+      this.meetsSizeBound=(this.nodeAmount!)>c1*this.total?false:true;
     }
     if(!isNaN(c2)){
       this.meetsPathBound=(this.longestPath!)>c2*Math.log(this.total)?false:true;

@@ -170,7 +170,7 @@
                             <label>Node Amount</label>
                         </div>
                         <div class="col-md-4">
-                            <span>{{nodeAmount}}</span>
+                            <span [ngStyle]="{'color': meetsSizeBound===undefined?'black':meetsSizeBound?'green':'red'}">{{nodeAmount}}</span>
                         </div> 
                     </div>
                     <div class="row">
@@ -181,14 +181,14 @@
                             <span>{{edgeAmount}}</span>
                         </div> 
                     </div>
-                    <div class="row">
+                    <!-- <div class="row">
                         <div class="col-md-8">
                             <label>Total size (Node+Edge)</label>
                         </div>
                         <div class="col-md-4">
                             <span [ngStyle]="{'color': meetsSizeBound===undefined?'black':meetsSizeBound?'green':'red'}">{{edgeAmount&&nodeAmount?edgeAmount+nodeAmount:""}}</span>
                         </div> 
-                    </div>
+                    </div> -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="btn-group">
