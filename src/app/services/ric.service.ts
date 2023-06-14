@@ -15,6 +15,9 @@ export class RICService {
   private trapUpdate:{node:Node,mode:string,mergeTrap?:Node}[]=[];
   private counter:number=1;
   private stepCounter:number=0;
+  private nodeCounter:number=1;
+  private trapCounter:number=1;
+  private edgeCounter:number=0;
 
   constructor(private dagService:DAGService, private drawService:DRAWService) {}
 
@@ -23,6 +26,17 @@ export class RICService {
     this.dagService.init();
     this.counter=1;
     this.stepCounter=0;
+    this.nodeCounter=1;
+    this.trapCounter=1;
+    this.edgeCounter=0;
+  }
+
+  getNodeAmount():number{
+    return this.nodeCounter;
+  }
+
+  getTrapAmount():number{
+    return this.trapCounter;
   }
 
   stepBck(){
@@ -153,6 +167,9 @@ export class RICService {
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1
         tU.node.rightChild=new Node(tUd+1,new H_Node(line.right),new Node(tUd+2,new V_Node(line),t2,t3),t4)
+        this.nodeCounter+=6
+        this.trapCounter+=3
+        this.edgeCounter+=6
       }
       else if(tU.mode==="left"){
         const t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom));
@@ -185,6 +202,9 @@ export class RICService {
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1;
         tU.node.rightChild=new Node(tUd+1,new V_Node(line),t2,t3);
+        this.nodeCounter+=4
+        this.trapCounter+=2
+        this.edgeCounter+=4
       }
       else if(tU.mode==="none"){
         let t2:Node|any;
@@ -231,6 +251,9 @@ export class RICService {
         tU.node.setInner(new V_Node(line))
         tU.node.leftChild=t2;
         tU.node.rightChild=t3;
+        this.nodeCounter+=1
+        this.trapCounter+=0
+        this.edgeCounter+=2
       }
       else if(tU.mode==="right"){
         let t2:Node|any;
@@ -278,6 +301,9 @@ export class RICService {
         tU.node.setInner(new H_Node(line.right))
         tU.node.leftChild=new Node(tUd+1,new V_Node(line),t2,t3)
         tU.node.rightChild=t4
+        this.nodeCounter+=3
+        this.trapCounter+=1
+        this.edgeCounter+=4
       }
       else if(tU.mode==="bothHit"){
         let t2=new Node(tUd+1,new Trapezoid(this.counter++,line.left,line.right,trap.top,line))
@@ -336,6 +362,9 @@ export class RICService {
         tU.node.setInner(new V_Node(line))
         tU.node.leftChild=t2
         tU.node.rightChild=t3
+        this.nodeCounter+=2
+        this.trapCounter+=1
+        this.edgeCounter+=2
       }
       else if(tU.mode==="leftHitAndRight"){
         let t2=new Node(tUd+2,new Trapezoid(this.counter++,line.left,line.right,trap.top,line))
@@ -384,6 +413,9 @@ export class RICService {
         tU.node.setInner(new H_Node(line.right))
         tU.node.leftChild=new Node(tUd+1,new V_Node(line),t2,t3)
         tU.node.rightChild=t4
+        this.nodeCounter+=4
+        this.trapCounter+=2
+        this.edgeCounter+=4
       }
       else if(tU.mode==="leftHit"){
         let t2=new Node(tUd+1,new Trapezoid(this.counter++,line.left,trap.right,trap.top,line))
@@ -431,6 +463,9 @@ export class RICService {
         tU.node.setInner(new V_Node(line))
         tU.node.leftChild=t2
         tU.node.rightChild=t3
+        this.nodeCounter+=2
+        this.trapCounter+=1
+        this.edgeCounter+=2
       }
       else if(tU.mode==="rightHit"){
         let t2:Node|any;
@@ -490,6 +525,9 @@ export class RICService {
         tU.node.setInner(new V_Node(line))
         tU.node.leftChild=t2
         tU.node.rightChild=t3
+        this.nodeCounter+=1
+        this.trapCounter+=0
+        this.edgeCounter+=2
       }
       else if(tU.mode==="leftAndRightHit"){
         let t1=new Node(tUd+1,new Trapezoid(this.counter++,trap.left,line.left,trap.top,trap.bottom))
@@ -535,12 +573,18 @@ export class RICService {
         tU.node.setInner(new H_Node(line.left))
         tU.node.leftChild=t1;
         tU.node.rightChild=new Node(tUd+1,new V_Node(line),t2,t3);
+        this.nodeCounter+=4
+        this.trapCounter+=2
+        this.edgeCounter+=4
       }
     })
     if(draw===undefined || draw===true){
       this.drawDAG(canvasDAG,"update");
       this.drawRIC(canvas);
     }
+    this.dagService.setNodeAmount(this.nodeCounter)
+    this.dagService.setTrapAmount(this.trapCounter)
+    this.dagService.setEdgeAmount(this.edgeCounter)
   }
 
   drawRIC(canvas:any){

@@ -12,14 +12,19 @@ export class DAGService {
   private root:Node|undefined;
   private maxDepth:number=0;
   public locationPath:Node[]=[];
-  private visited:Node[]=[];
   public entryNodes:Node[]=[];
+  private nodeAmount:number=1;
+  private trapAmount:number=1;
+  private edgeAmount:number=0;
 
   constructor(private linesService:LinesService) {
     this.init();
   }
 
   init(){
+    this.nodeAmount=1;
+    this.trapAmount=1;
+    this.edgeAmount=0;
     this.entryNodes=[]
     const extremes:any=this.linesService.getExtremes();
     let xSpan=extremes.maxX-extremes.minX
@@ -54,36 +59,27 @@ export class DAGService {
     return this.root!;
   }
 
-  getNodeAmount(node:Node):number{
-    node.visited=true
-    this.visited.push(node)
-    if(node.getInner() instanceof Trapezoid){
-      return this.visited.length;
-    } else {
-      let children:Node[]=[node.leftChild!,node.rightChild!]
-      for(let n of children)
-      if(!n.visited){
-        this.getNodeAmount(n)
-      }
-    }
-    return this.visited.length;
+  setNodeAmount(n:number){
+    this.nodeAmount=n;
   }
 
-  getTrapAmount(trapNode:Node):number{
-    trapNode.visited=true
-    this.visited.push(trapNode)
-    let neighbors:Node[]=trapNode.getNeighbors().right
-    for(let t of neighbors)
-    if(!t.visited){
-      this.getTrapAmount(t)
-    }
-    return this.visited.length;
+  setTrapAmount(n:number){
+    this.trapAmount=n;
   }
 
-  resetVisited(){
-    for(let n of this.visited){
-      n.visited=false;
-    }
-    this.visited=[]
+  setEdgeAmount(n:number){
+    this.edgeAmount=n;
+  }
+
+  getNodeAmount():number{
+    return this.nodeAmount;
+  }
+
+  getTrapAmount():number{
+    return this.trapAmount;
+  }
+
+  getEdgeAmount():number{
+    return this.edgeAmount;
   }
 }

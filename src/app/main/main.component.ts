@@ -25,6 +25,9 @@ export class MainComponent {
   maxDepth?:number;
   nodeAmount?:number;
   trapAmount?:number;
+  edgeAmount?:number;
+  meetsSizeBound?:boolean;
+  meetsPathBound?:boolean;
   lines:Line[]=[];
   total:number=0;
   counter:number=0;
@@ -179,21 +182,51 @@ export class MainComponent {
     }
   }
 
-  analyzeDAG(){
+  findDAGInBound(c1:number,c2:number){
+    if(isNaN(c1)||isNaN(c2)){
+      alert("Missing Inputs c1 and/or c2");
+      return;
+    }
+    for (let i = 0; i < 100; i++) {
+      this.recalc(c1,c2);
+      if(this.meetsPathBound&&this.meetsSizeBound){
+        alert("DAG within Boundaries found after "+i+" retries")
+        return
+      }
+    }
+    alert("no DAG within Boundaries found after 100 retries")
+  }
+
+  recalc(c1:number,c2:number){
+    this.shuffleLines();
+    this.skip();
+    this.analyzeDAG(c1,c2)
+  }
+
+  analyzeDAG(c1:number,c2:number){  
     this.longestLegalSearchPath();
     this.maxDepth=this.dagService.getMaxDepth();
     this.getNodeAmount();
     this.getTrapAmount();
+    this.getEdgeAmount();
+    if(!isNaN(c1)){
+      this.meetsSizeBound=(this.nodeAmount!+this.edgeAmount!)>c1*this.total?false:true;
+    }
+    if(!isNaN(c2)){
+      this.meetsPathBound=(this.longestPath!)>c2*Math.log(this.total)?false:true;
+    }
   }
 
   getNodeAmount(){
-    this.nodeAmount=this.dagService.getNodeAmount(this.dagService.getRoot())
-    this.dagService.resetVisited();
+    this.nodeAmount=this.dagService.getNodeAmount()
   }
 
   getTrapAmount(){
-    this.trapAmount=this.dagService.getTrapAmount(this.dagService.locate(new Point(this.linesService.getExtremes()?.minX!,0)));
-    this.dagService.resetVisited();
+    this.trapAmount=this.dagService.getTrapAmount();
+  }
+
+  getEdgeAmount(){
+    this.edgeAmount=this.dagService.getEdgeAmount();
   }
 
   longestLegalSearchPath(){
@@ -206,6 +239,9 @@ export class MainComponent {
     delete this.maxDepth
     delete this.nodeAmount
     delete this.trapAmount
+    delete this.edgeAmount
+    delete this.meetsSizeBound
+    delete this.meetsPathBound
   }
 
   skip(){

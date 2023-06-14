@@ -84,38 +84,18 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label>x1</label>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" placeholder="x1" #x1>
-                        </div>
+                <div class="col-md-10">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon" id="sizing-addon1">x1</span>
+                        <input type="number" class="form-control" aria-describedby="sizing-addon1" placeholder="x1" #x1>
+                        <span class="input-group-addon" id="sizing-addon1">y1</span>
+                        <input type="number" class="form-control" aria-describedby="sizing-addon1" placeholder="y1" #y1>
                     </div>
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label>y1</label>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" placeholder="y1" #y1>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label>x2</label>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" placeholder="x2" #x2>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label>y2</label>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" placeholder="y2" #y2>
-                        </div>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon" id="sizing-addon1">x2</span>
+                        <input type="number" class="form-control" aria-describedby="sizing-addon1" placeholder="x2" #x2>
+                        <span class="input-group-addon" id="sizing-addon1">y2</span>
+                        <input type="number" class="form-control" aria-describedby="sizing-addon1" placeholder="y2" #y2>
                     </div>
                 </div>
             </div>
@@ -126,37 +106,37 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label>x</label>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" placeholder="x" [(ngModel)]="locateX" #x>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-1">
-                            <label>y</label>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" placeholder="y" [(ngModel)]="locateY" #y>
-                        </div> 
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label>Trapezoid</label>
-                        </div>
-                        <div class="col-md-8">
-                            <span>{{locateTrap}}</span>
-                        </div> 
+                <div class="col-md-10">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon" id="sizing-addon1">x</span>
+                        <input type="number" class="form-control" aria-describedby="sizing-addon1" placeholder="x" [(ngModel)]="locateX" #x>
+                        <span class="input-group-addon" id="sizing-addon1">y</span>
+                        <input type="number" class="form-control" aria-describedby="sizing-addon1" placeholder="y" [(ngModel)]="locateY" #y>
                     </div>
                 </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <label>Trapezoid</label>
+                </div>
+                <div class="col-md-8">
+                    <span>{{locateTrap}}</span>
+                </div> 
             </div>
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-primary" title="Analyze the DAG for the properties below" (click)="analyzeDAG()">Analyze DAG</button>
+                    <button class="btn btn-primary" title="Analyze the DAG for the properties below" (click)="analyzeDAG(c1.valueAsNumber,c2.valueAsNumber)">Analyze DAG</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon" id="sizing-addon1">c1</span>
+                        <input type="number" class="form-control" aria-describedby="sizing-addon1" placeholder="c1" min="1" #c1>
+                        <span class="input-group-addon" id="sizing-addon1">c2</span>
+                        <input type="number" class="form-control" aria-describedby="sizing-addon1" placeholder="c2" min="1" #c2>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -166,7 +146,7 @@
                             <label>Longest Path</label>
                         </div>
                         <div class="col-md-4">
-                            <span>{{longestPath}}</span>
+                            <span [ngStyle]="{'color': meetsPathBound==undefined?'black':meetsPathBound?'green':'red'}">{{longestPath}}</span>
                         </div> 
                     </div>
                     <div class="row">
@@ -179,6 +159,14 @@
                     </div>
                     <div class="row">
                         <div class="col-md-8">
+                            <label>Trapezoid Amount</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span>{{trapAmount}}</span>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
                             <label>Node Amount</label>
                         </div>
                         <div class="col-md-4">
@@ -187,11 +175,27 @@
                     </div>
                     <div class="row">
                         <div class="col-md-8">
-                            <label>Trapezoid Amount</label>
+                            <label>Edge Amount</label>
                         </div>
                         <div class="col-md-4">
-                            <span>{{trapAmount}}</span>
+                            <span>{{edgeAmount}}</span>
                         </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Total size (Node+Edge)</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span [ngStyle]="{'color': meetsSizeBound===undefined?'black':meetsSizeBound?'green':'red'}">{{edgeAmount&&nodeAmount?edgeAmount+nodeAmount:""}}</span>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="btn-group">
+                                <button class="btn btn-warning" title="Recalculate the DAG" (click)="recalc(c1.valueAsNumber,c2.valueAsNumber)">Retry</button>
+                                <button class="btn btn-warning" title="Repeat until DAG in boundaries found" (click)="findDAGInBound(c1.valueAsNumber,c2.valueAsNumber)"><span class="glyphicon glyphicon-refresh"></span></button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
