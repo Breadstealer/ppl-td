@@ -49,8 +49,30 @@ export class LinesService {
     {p1x:50,p1y:800,p2x:10,p2y:500},
     {p1x:50,p1y:800,p2x:25,p2y:750},
     {p1x:50,p1y:800,p2x:-5,p2y:900},
-    {p1x:50,p1y:800,p2x:20,p2y:1100},
-    
+    {p1x:50,p1y:800,p2x:20,p2y:1100},  
+  ]
+
+  private worstcaseExp=[
+    {p1x:100,p1y:100,p2x:110,p2y:100},
+    {p1x:120,p1y:100,p2x:130,p2y:100},
+    {p1x:140,p1y:100,p2x:150,p2y:100},
+    {p1x:160,p1y:100,p2x:170,p2y:100},
+    {p1x:180,p1y:100,p2x:190,p2y:100},
+    {p1x:200,p1y:100,p2x:210,p2y:100},
+    {p1x:220,p1y:100,p2x:230,p2y:100},
+    {p1x:240,p1y:100,p2x:250,p2y:100},
+    {p1x:260,p1y:100,p2x:270,p2y:100},
+    {p1x:280,p1y:100,p2x:290,p2y:100},
+    {p1x:90,p1y:0,p2x:300,p2y:0},
+    {p1x:80,p1y:10,p2x:310,p2y:10},
+    {p1x:70,p1y:20,p2x:320,p2y:20},
+    {p1x:60,p1y:30,p2x:330,p2y:30},
+    {p1x:50,p1y:40,p2x:340,p2y:40},
+    {p1x:40,p1y:50,p2x:350,p2y:50},
+    {p1x:30,p1y:60,p2x:360,p2y:60},
+    {p1x:20,p1y:70,p2x:370,p2y:70},
+    {p1x:10,p1y:80,p2x:380,p2y:80},
+    {p1x:0,p1y:90,p2x:390,p2y:90},
   ]
 
   constructor() {
@@ -70,7 +92,7 @@ export class LinesService {
     //this.findExtremes();
   }
 
-  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'|'polygons'):Line[]{
+  initLines(mode:'reset'|'locateWorstCaseLowerBound'|'deleteAll'|'polygons'|'worstcaseExp'):Line[]{
     this.nameNumber=0;
     let initLines:any=eval("this."+mode)
     this.lines=[]
